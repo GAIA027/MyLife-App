@@ -1,0 +1,160 @@
+{
+    "users": [
+        {
+            "id": "LtOPiBu4Hl",
+            "first_name": "Abdul",
+            "last_name": "Sani",
+            "username": "dedsec",
+            "email": "dedsec@gmail.com",
+            "password": "fce336459e7288feaf125475bb1807fe768d64e0a4c4b3fb37a95f0ea949273d",
+            "tasks": [],
+            "projects": [],
+            "habits": []
+        },
+        {
+            "id": "JItEZ3ns9u",
+            "first_name": "Amin",
+            "last_name": "Abdulkadir",
+            "username": "g.a.i.a",
+            "email": "alaminabdulkadir5@gmail.com",
+            "password": "5e5f98575bb6ba9f88b3fd5b60c80d6777f5c70bf3ab1002d6e8984cd7b00039",
+            "tasks": [
+                {
+                    "id": "3FlYTYkNPk",
+                    "task_name": "Russian",
+                    "task_description": "Learn Russian",
+                    "task_type": "Study",
+                    "create_at": "16/2/2026",
+                    "task_deadline": "No deadline",
+                    "task_notes": "Focus on grammatical cases"
+                },
+                {
+                    "id": "UQZyW0TspW",
+                    "task_name": "Japanese",
+                    "task_description": "Learn japanese",
+                    "task_type": "study",
+                    "create_at": "16/2/2026",
+                    "task_deadline": "No deadline",
+                    "task_notes": "Focus on kanji",
+                    "status": "completed",
+                    "completed_at": "2026-02-23T13:20:09+04:00",
+                    "updated_at": "2026-02-23T13:20:09+04:00"
+                },
+                {
+                    "id": "t79bkrYPEc",
+                    "task_name": "Study the topic \"Dataclasses\"",
+                    "task_description": "Study python",
+                    "task_type": "study",
+                    "create_at": "22/2/2006",
+                    "task_deadline": "No deadline",
+                    "task_notes": "No notes",
+                    "created_at": "2026-02-22T12:10:09+04:00",
+                    "updated_at ": "2026-02-22T12:10:09+04:00",
+                    "status ": "pending",
+                    "completed_at": false
+                }
+            ],
+            "projects": [],
+            "habits": [
+                {
+                    "user_id": "8eS2c9zeRx",
+                    "habit_name": "read a book",
+                    "habit_description": "Go through at least 1 chapter of 2 books a day",
+                    "habit_frequency": "daily",
+                    "habit_start_date": "22/2/2026",
+                    "habit_notes": "Read in the morning",
+                    "completion_log": [
+                        "2026-02-22"
+                    ],
+                    "streak": 1,
+                    "best_streak": 1,
+                    "last_completed_date": "2026-02-22",
+                    "created_at": "2026-02-22T14:33:20+04:00",
+                    "updated_at ": "2026-02-22T14:33:20+04:00",
+                    "status ": "pending",
+                    "completed_at": "2026-02-22T14:59:33+04:00",
+                    "status": "completed",
+                    "updated_at": "2026-02-22T14:59:33+04:00"
+                },
+                {
+                    "user_id": "84qXGkQR0p",
+                    "habit_name": "eat rice",
+                    "habit_description": "eat rice everyday",
+                    "habit_frequency": "daily",
+                    "habit_start_date": "22/2/2026",
+                    "habit_notes": "jollof rice, white rice, fried rice",
+                    "completion_log": [],
+                    "streak": 0,
+                    "best_streak": 0,
+                    "last_completed_date": null,
+                    "created_at": "2026-02-22T14:44:41+04:00",
+                    "updated_at ": "2026-02-22T14:44:41+04:00",
+                    "status ": "pending",
+                    "completed_at": null
+                },
+                {
+                    "user_id": "MXMvFExFRp",
+                    "habit_name": "practice python",
+                    "habit_description": "Learn python everyday for 2 hours",
+                    "habit_frequency": "daily",
+                    "habit_start_date": "22/2/2026",
+                    "habit_notes": "no notes",
+                    "completion_log": [],
+                    "streak": 0,
+                    "best_streak": 0,
+                    "last_completed_date": null,
+                    "created_at": "2026-02-22T14:47:11+04:00",
+                    "updated_at ": "2026-02-22T14:47:11+04:00",
+                    "status ": "pending",
+                    "completed_at": null
+                }
+            ]
+        },
+        {
+            "id": "HofuJ4Cyub",
+            "first_name": "Smoke",
+            "last_name": "Tester",
+            "username": "smoketest_user",
+            "email": "smoketest_user_20260216@example.com",
+            "password": "d7440805ab260d5ed42b3f16ea7f47d1df0e3db9b6becaad36dc04048762cb1a",
+            "tasks": [
+                {
+                    "id": "gvpVbelhHY",
+                    "task_name": "test task from smoke",
+                    "task_description": "test description",
+                    "task_type": "personal",
+                    "create_at": "02/16/2026",
+                    "task_deadline": "02/20/2026",
+                    "task_notes": "note from smoke"
+                }
+            ],
+            "projects": [],
+            "habits": []
+        },
+        {
+            "id": "EXonuKoB7y",
+            "first_name": "Musatpha",
+            "last_name": "Muhammad",
+            "username": "mustapha",
+            "email": "mustaphamuhammad@gmail.com",
+            "password": "2ea2a0aab9edca0358ea855ab80b41b01b067053718fd8a78504a70b990ea6ad",
+            "tasks": [
+                {
+                    "id": "y8GzYCDxve",
+                    "task_name": "Buy rice",
+                    "task_description": "Go to 3rd avenue and buy rice from mai dogo",
+                    "task_type": "Food",
+                    "create_at": "21/2/2026",
+                    "task_deadline": "No deadline",
+                    "task_notes": "It should be two portion of rice",
+                    "created_at": "2026-02-21T21:38:06+04:00",
+                    "updated_at ": "2026-02-21T21:38:06+04:00",
+                    "status ": "pending",
+                    "completed_at": null
+                }
+            ],
+            "projects": [],
+            "habits": []
+        }
+    ]
+}
