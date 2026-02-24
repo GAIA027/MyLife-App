@@ -833,11 +833,8 @@ class ArchiveStore:
         return False
 
     def archive_projects(self,current_user, project_title):
-        if not current_user:
-            print("Please login first")
-            current_user = user_login()
-            return
-        
+        check_current_user()
+
         data = load_database()
         for user in data.get("users", []):
             if str(user.get("id")) == str(current_user.get("id")):
@@ -855,14 +852,46 @@ class ArchiveStore:
                         return True
         return False
 
-    def save_archive(self,):
-        pass
+    def save_archive(self, currnet_user):
+        check_current_user()
 
     def load_archive(self,):
-        pass
-
-    def view_archive(self):
-        pass
+        if not current_user:
+            print("Please login first")
+            current_user = user_login()
+            return
+        data = load_database()
+        for user in data.get("users", []):
+            if str(user.get("id")) == str(current_user.get("id")):
+                archived_data = user.get("archive", {})
+                self.archive_habits_log = archived_data.get("archive_habits_log", [])
+                self.archived_tasks_log = archived_data.get("archive_tasks_log", [])
+                self.archived_projects_log = archived_data.get("archived_projects_log", [])
+                return True
+        print("current user not found")
+        return False
+    
+    def view_archive(self, current_user):
+        check_current_user()
+        data = load_database()
+        for user in data.get("users", []):
+            if str(user.get("id")) == str(current_user.get("id")):
+                user["archive"] = {
+                    "archived_habits_log" : self.archived_habits_log,
+                    "archived_tasks_log" : self.archived_tasks_log,
+                    "archived_projects_log" : self.archived_projects_log,
+                    "updated_at" : now_dubai()
+                }
+                save_database(data)
+                return True
+        print("Current user not found")
+        return False
+        
+def check_current_user(current_user):
+    if not current_user:
+        print("Please login first")
+        current_user = user_login()
+        return
 
 app_UI()
 
@@ -873,7 +902,7 @@ app_UI()
 #2 Dashboard system
 #3 Search system
 #4 Tag System
-#5 Archive system  (In the proccess)
+#5 Archive system  (Almost Done)
 #6 Session management system
 #7 Activity log system
 #8 Recurring task system
@@ -898,4 +927,4 @@ app_UI()
 #5. Date System
 #6 Event System
 
-#Database will be swqwitched from json to postgres or SQlite 
+#Database will be switched from json to postgres or SQlite 
