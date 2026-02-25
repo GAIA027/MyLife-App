@@ -11,6 +11,7 @@ from zoneinfo import ZoneInfo
 import time
 import asyncio
 from dataclasses import dataclass, field
+from typing import Any, Callable
 
 DXB_TZ = ZoneInfo("Asia/Dubai")
 DXB_now = datetime.now(DXB_TZ)
@@ -158,8 +159,9 @@ def app_dashboard(current_user):
     print("3. MyHabits")
     print("4. MyCalendar")
     print("5. MyFitness")
-    print("6. MyFinance")       
-    print("7. Log out")
+    print("6. MyFinance")    
+    print("7. MyArchive")   
+    print("8. Log out")
     user_request = int(input())
     if user_request == 1:
         task_dashboard(current_user)
@@ -747,24 +749,27 @@ def user_register_text():
 
 def task_dashboard(current_user):
     print("\n===Tasks===")
-    print("1. Create task")
-    print("2. View tasks")
-    print("3. Update task")
-    print("4. Mark task as done")
-    print("5. Delete task")
-    print("6. Go back to main menu")
+    print("1. Search Tasks")
+    print("2. Create task")
+    print("3. View tasks")
+    print("4. Update task")
+    print("5. Mark task as done")
+    print("6. Delete task")
+    print("7. Go back to main menu")
     user_request = int(input())
     if user_request == 1:
-        record_task(current_user)
+        Tracker_search_engine.search_tasks_engine()
     elif user_request == 2:
-        show_tasks(current_user)
+        record_task(current_user)
     elif user_request == 3:
-        update_task(current_user)
+        show_tasks(current_user)
     elif user_request == 4:
-        mark_task_as_complete(current_user)
+        update_task(current_user)
     elif user_request == 5:
-        remove_task(current_user)
+        mark_habit_as_complete(current_user)
     elif user_request == 6:
+        remove_task(current_user)
+    elif user_request == 7:
         app_dashboard(current_user)
 
 def set_priority(task_id, cureent_user):
@@ -833,7 +838,7 @@ class ArchiveStore:
         return False
 
     def archive_projects(self,current_user, project_title):
-        check_current_user()
+        require_current_user()
 
         data = load_database()
         for user in data.get("users", []):
@@ -853,7 +858,19 @@ class ArchiveStore:
         return False
 
     def save_archive(self, currnet_user):
-        check_current_user()
+        require_current_user()
+
+        data = load_database()
+        for user in data.get("users", []):
+            if str(user.get("id")) == str(currnet_user.get("id")):
+                user["archive"] = {
+                    "archive_habits_log" : self.archive_habits_log,
+                    "archive_tasks_log" : self.archived_tasks_log,
+                    "archive_projects_log" : self.archived_projects_log
+                }
+                save_database(data)
+                return True, "Saved"
+            return False, "User not found"
 
     def load_archive(self,):
         if not current_user:
@@ -872,9 +889,9 @@ class ArchiveStore:
         return False
     
     def view_archive(self, current_user):
-        check_current_user()
-        data = load_database()
-        for user in data.get("users", []):
+        require_current_user()
+        data_loader : callable[[], dict] = load_database()
+        for user in data_loader.get("users", []):
             if str(user.get("id")) == str(current_user.get("id")):
                 user["archive"] = {
                     "archived_habits_log" : self.archived_habits_log,
@@ -882,34 +899,84 @@ class ArchiveStore:
                     "archived_projects_log" : self.archived_projects_log,
                     "updated_at" : now_dubai()
                 }
-                save_database(data)
+                save_database(data_loader)
                 return True
         print("Current user not found")
         return False
         
-def check_current_user(current_user):
-    if not current_user:
-        print("Please login first")
-        current_user = user_login()
-        return
+def require_current_user(current_user):
+    if current_user:
+        return current_user
+    print("Please log in first. ")
+    return user_login()
 
-app_UI()
+def archive_dashboard():
+    pass
+@dataclass(slots=True)
+class Tracker_search_engine:
+        data_loader : callable[[], dict] = load_database()
 
+        def find_user(self, users : list[dict[str, Any]], current_user : dict) -> dict | None:
+            current_user = str(current_user.get("id"))
+            return next(user for user in users if str(user.get("id")) == str(current_user.get("id"), None))
+        def search_collection(
+                self,
+                current_user : dict | None,
+                collection_key : str,
+                title_key : str,
+                keyword : str | None = None,
+        ) -> list[dict[str, Any]]:
+            current_user = require_current_user(current_user)
+            if not current_user:
+                return []
+            
+            data = self.data_loader()
+            user = self.find_user(data.get("users", []), current_user)
+            if not user:
+                print("user not found")
+
+            if keyword is None:
+                keyword = input("search keyword : ").lower()
+
+            if not keyword:
+                print("Keyword not found")
+                return []
+            
+            items = user.get(collection_key, [])
+            matches = [item for item in items if keyword in str(item.get(title_key, "")).lower()]
+            if not matches:
+                print("Keyword not found")
+            else:
+                print(f"found {len(matches)} match(es):")
+                ([item for item in items])
+            
+            return matches
+        
+        def search_tasks_engine(self, current_user : dict | None, keyword : str | None = None):
+            return self.search_collection(current_user, "tasks", "task_name", keyword)
+        
+        def search_habits_engine(self, current_user : dict | None, keyword : str | None = None):
+            return self.search_collection(current_user, "habits", "habit_name", keyword)
+        
+        def search_projects_engine(self, current_user : dict | None, keyword : str | None = None):
+            return self.search_collection(current_user, "projects", "project_name", keyword)
 
 
 #Features to add
-#1 Deadline system
-#2 Dashboard system
-#3 Search system
-#4 Tag System
-#5 Archive system  (Almost Done)
-#6 Session management system
-#7 Activity log system
-#8 Recurring task system
-#9 Data validation system
-#10 Export system
-#11 Nested project system (e.g Tasks inside projects)
-#12 Priority System 
+#1 Deadline system (Not started)
+#2 Dashboard system (Not started)
+#3 Search system (Done)
+#4 Tag System (Not started)
+#5 Archive system  (Done)
+#6 Session management system (Not started)
+#7 Activity log system (Not started)
+#8 Recurring task system (Not started)
+#9 Data validation system (Not Started)
+#10 Export system (Not Started)
+#11 Nested project system (e.g Tasks inside projects) (Not started)
+#12 Priority System (Not started)
+#13 Add a settings system (Not started)
+#14 Time task system that gives the user a time limit to complete the task e.g a task for one day (Not started)
 
 
 #Finance System Logic
@@ -918,6 +985,9 @@ app_UI()
 #3. category system
 #4. Nested search engine
 #5. Date System
+#6 Settings system
+#7 Investment tracker system
+#8 Fund system
 
 #Fitness System Logic
 #1. Calaorie Tracker
@@ -926,5 +996,6 @@ app_UI()
 #4. Nested search engine system
 #5. Date System
 #6 Event System
+#6 Settings system
 
 #Database will be switched from json to postgres or SQlite 
