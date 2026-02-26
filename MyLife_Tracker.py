@@ -160,8 +160,9 @@ def app_dashboard(current_user):
     print("4. MyCalendar")
     print("5. MyFitness")
     print("6. MyFinance")    
-    print("7. MyArchive")   
-    print("8. Log out")
+    print("7. MyArchive")
+    print("8. Settings")   
+    print("9. Log out")
     user_request = int(input())
     if user_request == 1:
         task_dashboard(current_user)
@@ -177,8 +178,11 @@ def app_dashboard(current_user):
         print("Finance management coming soon")
         app_dashboard()
     elif user_request == 7:
-        print("Logged out successfully")
-        app_UI()
+        archive_dashboard(current_user)
+    elif user_request == 8:
+        app_settings(current_user)
+    elif user_request == 9:
+        exit_app(current_user)
 
 class task:
     def __init__(self):
@@ -580,7 +584,6 @@ def delete_habit(current_user):
                     app_dashboard()
                 return
     print("Habit not found! Please check the title and try again.")
-
 class project:
     def __init__(self) -> None:
         self.projects : list[dict[str, str | int]] = []
@@ -914,11 +917,12 @@ def archive_dashboard():
     pass
 @dataclass(slots=True)
 class Tracker_search_engine:
-        data_loader : callable[[], dict] = load_database()
+        data_loader: Callable[[], dict[str, Any]] = load_database
 
-        def find_user(self, users : list[dict[str, Any]], current_user : dict) -> dict | None:
-            current_user = str(current_user.get("id"))
-            return next(user for user in users if str(user.get("id")) == str(current_user.get("id"), None))
+        @staticmethod
+        def find_user(users : list[dict[str, Any]],current_user : dict) -> dict |None:
+            current_id = str(current_user.get("id"))
+            return next((user for user in users if str(user.get("id")) == str(current_id)), None)
         def search_collection(
                 self,
                 current_user : dict | None,
@@ -934,6 +938,7 @@ class Tracker_search_engine:
             user = self.find_user(data.get("users", []), current_user)
             if not user:
                 print("user not found")
+                return []
 
             if keyword is None:
                 keyword = input("search keyword : ").lower()
@@ -948,7 +953,8 @@ class Tracker_search_engine:
                 print("Keyword not found")
             else:
                 print(f"found {len(matches)} match(es):")
-                ([item for item in items])
+                for item in matches:
+                    print(item)
             
             return matches
         
@@ -959,8 +965,71 @@ class Tracker_search_engine:
             return self.search_collection(current_user, "habits", "habit_name", keyword)
         
         def search_projects_engine(self, current_user : dict | None, keyword : str | None = None):
-            return self.search_collection(current_user, "projects", "project_name", keyword)
+            return self.search_collection(current_user, "projects", "project_title", keyword)
+        
+def change_password(current_user : dict) -> dict | None:
+    current_user == require_current_user(current_user)
+    if not current_user:
+        return False
+    
+    data_loader : Callable[[], dict[str, Any]] = load_database()
+    current_id = str(current_user.get("id"))
+    for user in data_loader.get("users", []):
+        if str(user.get("id")) != str(current_id):
+            continue
 
+        current_password = input("Enter your current password to change")
+        if not verify_password(current_password, user.get("password", [])):
+                print("Incorrect password")
+                time.sleep(2)
+                print("Enter your current password to change password")
+                return False
+
+        new_passoword = input("Enter your new password : ")
+        validation_error = validate_password(new_passoword)
+        if validation_error:
+            print(validation_error)
+            return False
+        
+        if verify_password(new_passoword, user.get("password", "")):
+            print("Your new password cannot be your current password")
+            return False
+        
+        user["password"] = hash_password(new_passoword)
+        save_database(data_loader)
+        print("Password changed successfully")
+        return True
+    
+    print("user not found")
+    return False
+
+def app_settings(current_user):
+    print("\n===Settings===")
+    print("1. Change password")
+    print("2. Delete account")
+    print("3. View archive")
+    print("4. Export data")
+    print("5. Clear data")
+    print("6. Go back to main menu")
+    print("7. Exit MyLife")
+    user_request = int(input())
+    if user_request == 1:
+        change_password(current_user)
+    elif user_request == 2:
+        pass
+    elif user_request == 3:
+        pass
+    elif user_request == 4:
+        pass
+    elif user_request == 5:
+        pass
+    elif user_request == 6:
+        pass
+    elif user_request == 7:
+        pass
+
+
+app_UI()
 
 #Features to add
 #1 Deadline system (Not started)
@@ -977,6 +1046,8 @@ class Tracker_search_engine:
 #12 Priority System (Not started)
 #13 Add a settings system (Not started)
 #14 Time task system that gives the user a time limit to complete the task e.g a task for one day (Not started)
+#15 Add a feature to change user password (Testing)
+#16 Add a feature  to export user data
 
 
 #Finance System Logic
