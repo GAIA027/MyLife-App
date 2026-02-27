@@ -1003,6 +1003,31 @@ def change_password(current_user : dict) -> dict | None:
     print("user not found")
     return False
 
+def delete_account(current_user : dict):
+    current_user = require_current_user(current_user)
+    if not current_user:
+        return False
+    
+    data_loader = load_database()
+    current_id = str(current_user.get("id"))
+    for user in data_loader.get("users", []):
+        if str(user.get("id")) != str(current_id):
+            continue
+
+        delete_request = input("\nAre you sure you want to delete your account? yes/no").lower()
+        if delete_request == "yes":
+            current_password = input("Enter your password to confirm account deletion")
+            if not verify_password(current_password, user.get("password")):
+                print("Password incorrect")
+                time.sleep(2)
+                print("Enter your current password to delete this account")
+                return False
+            data_loader["users"].remove(user)
+            save_database(data_loader)
+            print("User deleted successfully")
+        else:
+            app_settings(current_user)
+
 def app_settings(current_user):
     print("\n===Settings===")
     print("1. Change password")
@@ -1016,7 +1041,7 @@ def app_settings(current_user):
     if user_request == 1:
         change_password(current_user)
     elif user_request == 2:
-        pass
+        delete_account(current_user)
     elif user_request == 3:
         pass
     elif user_request == 4:
@@ -1046,7 +1071,8 @@ app_UI()
 #12 Priority System (Not started)
 #13 Add a settings system (Not started)
 #14 Time task system that gives the user a time limit to complete the task e.g a task for one day (Not started)
-#15 Add a feature to change user password (Testing)
+#15 Add a feature to change user password (Done)
+#16 Add a feature to delete user account (Done)
 #16 Add a feature  to export user data
 
 
