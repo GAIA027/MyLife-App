@@ -208,7 +208,7 @@ class ServiceLayer:
     
 
 from dataclasses import dataclass
-
+from enum import StrEnum , auto
 @dataclass
 class Order:
     order_id : int
@@ -221,3 +221,38 @@ class Order:
 order = Order(
     
 )
+
+@dataclass
+class Useraccount:
+    user_id : int
+    username : str
+    email : str
+    password : str
+
+    def get_username(self) -> str:
+        return self._username
+    
+    def secure_password(self) -> str:
+        return hashlib.sha(self.password.encode()).hexidigest()
+
+@dataclass
+class Useraccount2:
+    user_id : str
+    username : str
+    email : str
+    password : str
+
+    @property
+    def get_username(self):
+        return Useraccount.get_username()
+    
+
+def main() -> None:
+    account = Useraccount(
+        user_id=256,
+        username="Abdulkadir",
+        email="Abdulkadir@gmail.com",
+        password="hashed_password"
+    )
+
+    print("username : ", account.secure_password)

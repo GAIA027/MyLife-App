@@ -6,12 +6,50 @@ import string
 from wonderwords import RandomWord
 import json
 from pathlib import Path
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from zoneinfo import ZoneInfo
 import time
 import asyncio
 from dataclasses import dataclass, field
 from typing import Any, Callable
+import jwt
+import os
+
+JWT_SECRET = os.getenv("SECRET_KEY")
+if not JWT_SECRET:
+    raise ValueError("JWT_SECRET is not set")
+
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRE_MINUTES = 60
+
+def create_access_token(user : dict) -> str:
+    now = datetime(DXB_now)
+
+    payload = {
+        "sub" : str(user["id"]),
+        "username" : user["username"],
+        "iat" : int(now.timestamp()),
+        "exp" : int((now + timedelta(minutes=JWT_EXPIRE_MINUTES)))
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=[JWT_ALGORITHM])
+
+def decode_access_token(token : str) -> str:
+    return jwt.encode(token, JWT_SECRET, algorithm=[JWT_ALGORITHM])
+
+def require_current_user(token : str) -> dict | None:
+    try:
+        claims = decode_access_token(token)
+    except jwt.ExpiredSignatureError:
+        print("Session expired. Please login again")
+        return None
+    except jwt.InvalidTokenError:
+        print("Invalid token")
+        return None
+    
+    data = load_database()
+    user_id = claims.get("sub")
+    return next((u for u in data.get("users", []) if str(u.get("id")) == str(user_id)), None)
+
 
 DXB_TZ = ZoneInfo("Asia/Dubai")
 DXB_now = datetime.now(DXB_TZ)
@@ -22,16 +60,18 @@ def now_dubai():
 
 def app_UI():
     print("\n===MyLife===")
-    print("1. Sign Up")
-    print("2. Log In")
-    print("3. Exit")
+    print("\n1. Sign Up")
+    print("\n2. Log In")
+    print("\n3. Exit")
     user_choice = int(input())
     if user_choice == 1:
         user = user_create_account()
         if user:
             app_dashboard(user)
     elif user_choice == 2:
-        user = user_login()
+        user, token = user_login()
+        if token:
+            app_dashboard(token)
         if user:
             app_dashboard(user)
     elif user_choice == 3:
@@ -129,40 +169,45 @@ def user_create_account():
     }
     data["users"].append(new_user)
     save_database(data)
-    print(f"Signup successful. Saved to: {database_file}")
+    print(f"\nSignup successful. Welcome to MyLife ")
     return new_user
 
 def user_login():
     print("\n===Log-in===")
     data = load_database()
 
-    email_or_username = input("Email or Username : ").strip().lower()
+    email_or_username = input("\nEmail or Username : ").strip().lower()
     for user in data["users"]:
         if user["email"] == email_or_username or user["username"] == email_or_username:
             user_password_attempt_left = 3
             while user_password_attempt_left > 0:
-                password = input("Password : ")
+                password = input("\nPassword : ")
                 if verify_password(password, user["password"]):
+                    token = create_access_token(user)
                     time.sleep(3)
-                    print("\nLogin Successful. Welcome tp MyLife")
-                    return user
+                    print("\nLogin Successful. Welcome to MyLife")
+                    return user, token
                 else:
                     user_password_attempt_left -= 1
-                    print(f"Incorrect password. You have {user_password_attempt_left} attempts left.")
+                    print(f"\nIncorrect password. You have {user_password_attempt_left} attempts left.")
             print("User not found. Please check your email/username and try again.")
+    return None, None
 
 
-def app_dashboard(current_user):
-    print("\n===MyLife===")
-    print("1. MyTasks")
-    print("2. MyProjects")
-    print("3. MyHabits")
-    print("4. MyCalendar")
-    print("5. MyFitness")
-    print("6. MyFinance")    
-    print("7. MyArchive")
-    print("8. Settings")   
-    print("9. Log out")
+def app_dashboard(token : str,current_user : dict| None):
+    current_user = require_current_user(token)
+    if not current_user:
+        return
+    print(f"\nWelcome {current_user["username"]} ")
+    print("\n1. MyTasks")
+    print("\n2. MyProjects")
+    print("\n3. MyHabits")
+    print("\n4. MyCalendar")
+    print("\n5. MyFitness")
+    print("\n6. MyFinance")    
+    print("\n7. MyArchive")
+    print("\n8. Settings")   
+    print("\n9. Log out")
     user_request = int(input())
     if user_request == 1:
         task_dashboard(current_user)
@@ -387,16 +432,17 @@ def mark_task_as_complete(current_user):
 
 def habits_dashboard(current_user):
     print("\n===Habits===")
-    print("1. Create Habit")
-    print("2. Mark Habit")
-    print("3. View Habits")
-    print("4. Update Habit")
-    print("5. Delete Habits")
+    print("\n1. Search Habits")
+    print("\n2. Create Habit")
+    print("\n3. Mark Habit")
+    print("\n4. View Habits")
+    print("\n5. Update Habit")
+    print("\n6. Delete Habits")
     user_request = int(input())
     if user_request == 1:
-        create_habit(current_user)
+        search_engine.search_habits_engine(current_user)
     elif user_request == 2:
-        mark_habit_as_complete(current_user)
+        create_habit(current_user)
     elif user_request == 3:
         show_habits(current_user)
     elif user_request == 4:
@@ -714,24 +760,25 @@ def mark_project_as_complete(current_user):
         return
     print("Current user not found")
 
-def projects_dashboard():
+def projects_dashboard(current_user):
     print("\n===Projects===")
-    print("1. Create Project")
-    print("2. View Projects")
-    print("3. Update Project")
-    print("4. Delete Project")
-    print("Go back to main menu")
+    print("\n1. Search projects")
+    print("\n2. Create Project")
+    print("\n3. View Projects")
+    print("\n4. Update Project")
+    print("\n5. Delete Project")
+    print("\n6. Go back to main menu")
     user_request = int(input())
     if user_request == 1:
-        record_project(project_main)
+        search_engine.search_projects_engine(current_user)
     elif user_request == 2:
-        view_projects(project_main)
+        record_project(current_user)
     elif user_request == 3:
-        update_project_task()
+        view_projects(current_user)
     elif user_request == 4:
-        delete_project()
+        update_project_task()
     elif user_request == 5:
-        app_dashboard()
+        app_dashboard(current_user)
     else:
         print("Enter a valid number")
 
@@ -752,16 +799,16 @@ def user_register_text():
 
 def task_dashboard(current_user):
     print("\n===Tasks===")
-    print("1. Search Tasks")
-    print("2. Create task")
-    print("3. View tasks")
-    print("4. Update task")
-    print("5. Mark task as done")
-    print("6. Delete task")
-    print("7. Go back to main menu")
+    print("\n1. Search Tasks")
+    print("\n2. Create task")
+    print("\n3. View tasks")
+    print("\n4. Update task")
+    print("\n5. Mark task as done")
+    print("\n6. Delete task")
+    print("\n7. Go back to main menu")
     user_request = int(input())
     if user_request == 1:
-        Tracker_search_engine.search_tasks_engine()
+        search_engine.search_tasks_engine(current_user)
     elif user_request == 2:
         record_task(current_user)
     elif user_request == 3:
@@ -966,7 +1013,9 @@ class Tracker_search_engine:
         
         def search_projects_engine(self, current_user : dict | None, keyword : str | None = None):
             return self.search_collection(current_user, "projects", "project_title", keyword)
-        
+
+search_engine = Tracker_search_engine()
+
 def change_password(current_user : dict) -> dict | None:
     current_user == require_current_user(current_user)
     if not current_user:

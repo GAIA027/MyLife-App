@@ -155,6 +155,22 @@
             ],
             "projects": [],
             "habits": []
+        },
+        {
+            "id": "PWLnGy55Yq",
+            "first_name": "abdul",
+            "last_name": "shehu",
+            "username": "abdul",
+            "email": "abdul@gmailcom",
+            "password": "27652cad4994c0cc628413940eeb56600c86cfc35447c3c775d67610bb27aa61",
+            "tasks": [],
+            "projects": [],
+            "habits": [],
+            "finance": [],
+            "fitness": [],
+            "archived_tasks_log": [],
+            "archived_habits_log": [],
+            "archived_projects_log": []
         }
     ]
 }
