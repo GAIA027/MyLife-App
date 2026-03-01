@@ -256,3 +256,54 @@ def main() -> None:
     )
 
     print("username : ", account.secure_password)
+
+
+def check_even_odd(number : int) -> str:
+    return "Even" if number % 2 == 0 else "false"
+
+print(check_even_odd(22))
+
+
+def clarify_if_even_odd():
+    user_input = int(input("Enter a number"))
+    check_even_odd(user_input)
+
+
+iterator = iter()
+
+while True:
+    try:
+        item = next(iterator)
+        print(item)
+    except StopIteration:
+        break
+
+
+class Counter:
+    def __init__(self, max):
+        self.max = max
+        self.current = 0
+
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self.current >= self.max:
+            raise StopIteration
+        self.current += 1
+        return self.current
+    
+for num in Counter(3):
+    print(num)
+
+#using a generator
+
+def counter(max):
+    current = 0
+    while current < max:
+        current += 1
+        yield current
+
+for num in counter(3):
+    print(num)
+
