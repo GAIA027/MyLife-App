@@ -337,7 +337,7 @@ brew_tea(tea_type="green",steep_time=2)
 make_matcha(2)
 
 #Context manager
-import logging
+
 #Reading a file
 file = open("file.csv")
 data = file.read()
@@ -345,7 +345,7 @@ for line in file:
     if line.startswith("H"):
         print(line)
     else:
-        logging.error("No lines")
+        print("No lines")
 file.close()
 
 class DatabaseConnections:
@@ -361,3 +361,12 @@ with DatabaseConnections as DB:
     print("Running query")
 
 from contextlib import contextmanager
+
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("tasks.py")
+logging.info("Server Started")
+logging.warning("Memory usage high")
+logging.error("Database connection failed")
+

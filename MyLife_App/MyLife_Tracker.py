@@ -33,10 +33,8 @@ def is_due_within_days(task: dict, days: int, tz: str = "Asia/Dubai") -> bool:
         return False
 
     try:
-        # Supports stored values like: 2026-03-06T20:00:00+04:00
         deadline = datetime.fromisoformat(raw_deadline).date()
     except ValueError:
-        # Backward compatibility for older date-only values.
         deadline = datetime.strptime(raw_deadline, "%Y-%m-%d").date()
 
     today = datetime.now(ZoneInfo(tz)).date()
@@ -1453,7 +1451,7 @@ class ProductivityOverviewDashboard:
     def _find_user(self) -> dict | None:
         if not self.current_user:
             return None
-        data = self.data_loader
+        data = self.data_loader()
         current_id = str(self.current_user.get("id"))
         user = next(
             (u for u in data.get("users", []) if str(u.get("id")) == str(current_id))
@@ -1462,50 +1460,54 @@ class ProductivityOverviewDashboard:
         if not user:
             print("User not found")
             logging.warning("User information was not found in DB")
-            return False
+            return None
+        return user
     
     def task_metrics(self, tasks : list[dict[str, Any]]) -> dict[str, int]:
-        today = now_dubai()
+        today = datetime.now(self.tz).date()
         completed = 0
         pending = 0
         overdue = 0
         due_today = 0
         due_in_3 = 0
         due_in_7 = 0
-        due_tomorrow = 0
-
-        for t_completed in tasks:
-            if t_completed.get("status", "").lower() == "completed":
+        for task in tasks:
+            status = task.get("status", "").lower()
+            if status == "completed":
                 completed += 1
-            elif t_completed.get("status", "").lower() == "pending":
+            elif status == "pending":
                 pending += 1
-            else:
-                print("No tasks are completed.")
-                time.sleep(1)
-                print("Create a task")
-                return False
-        for t_overdue in tasks:
-            if is_due_within_days(t_overdue, 7):
-                due_in_7 += 1
-            elif is_due_within_days(t_overdue, 3):
-                due_in_3 += 1
-            elif is_due_within_days(t_overdue, 1):
-                due_tomorrow += 1
-            elif t_overdue > today:
+
+            raw_deadline = task.get("task_deadline")
+            if not raw_deadline:
+                continue
+
+            try:
+                deadline = datetime.fromisoformat(raw_deadline).date()
+            except ValueError:
+                try:
+                    deadline = datetime.strptime(raw_deadline, "%Y-%m-%d").date()
+                except ValueError:
+                    continue
+
+            delta_days = (deadline - today).days
+            if deadline < today and status != "completed":
                 overdue += 1
-        for t_today in tasks:
-            if t_today == today:
+            if delta_days == 0:
                 due_today += 1
+            if 0 <= delta_days <= 3:
+                due_in_3 += 1
+            if 0 <= delta_days <= 7:
+                due_in_7 += 1
 
         return {
-            "total : " : len(tasks),
-            "completed : " : completed,
-            "pending : " : pending,
-            "overdue : " : overdue,
-            "Tasks due today " : due_today,
-            "Tasks due tomorrow : " : due_tomorrow,
-            "Task/s due in 7 days : " : due_in_7,
-            "Task/s due in 3 days ; " : due_in_3 
+            "total": len(tasks),
+            "completed": completed,
+            "pending": pending,
+            "overdue": overdue,
+            "due_today": due_today,
+            "due_in_3_days": due_in_3,
+            "due_in_7_days": due_in_7,
         }
                 
     def habits_metrics(self, habits : list[dict[str, Any]]) -> dict[str, int]:
@@ -1516,9 +1518,9 @@ class ProductivityOverviewDashboard:
         habits_at_risk = 0
 
         for habit in habits:
-            if habit.get("completed_at", "").lower() == today:
+            if habit.get("completed_at", "") == today:
                 completed_today += 1
-            elif habit.get("completed_at", "").lower() > today:
+            elif habit.get("completed_at", "") != today:
                 missed_today += 1 
         for habit in habits:
             if habit.get("streaks", ""):
@@ -1527,40 +1529,57 @@ class ProductivityOverviewDashboard:
             if is_due_within_days(habit, 1):
                 habits_at_risk += 1
         return {
-            "habits completed today : " : completed_today,
-            "Habits missed : " : missed_today,
-            "Habits with streaks :" : active_streaks,
-            "Habits at risk : " :  habits_at_risk
+            "total": len(habits),
+            "completed_today": completed_today,
+            "missed_today": missed_today,
+            "active_streaks": active_streaks,
+            "at_risk": habits_at_risk,
         }
 
     def projects_metrics(self, projects : list[dict[str, Any]]) -> dict[str, int]:
-        today = now_dubai()
+        today = datetime.now(self.tz).date()
         is_active = 0
         is_completed = 0
         is_on_hold = 0
         is_overdue = 0
+        pending = 0
 
         for project in projects:
-            if project.get("status ", "").lower() == "active":
+            status = (project.get("status", "") or project.get("status ", "")).lower()
+            if status == "active":
                 is_active += 1
-            elif project.get("status", "").lower() == "completed":
+                pending += 1
+            elif status == "completed":
                 is_completed += 1
-            elif project.get("status", "").lower() == "on hold":
+            elif status == "on hold":
                 is_on_hold += 1
-        for project_overdue in projects:
-            if project_overdue.get("project_dedaline", "") > today:
-                is_overdue += 1 
+                pending += 1
+
+            raw_deadline = project.get("project_deadline")
+            if not raw_deadline:
+                continue
+            try:
+                deadline = datetime.fromisoformat(raw_deadline).date()
+            except ValueError:
+                try:
+                    deadline = datetime.strptime(raw_deadline, "%Y-%m-%d").date()
+                except ValueError:
+                    continue
+            if deadline < today and status != "completed":
+                is_overdue += 1
 
         return {
-            "Active projects : " : is_active,
-            "Projects completed :" : is_completed,
-            "Projects on hold : " : is_on_hold,
-            "Overdue projects : " : is_overdue
+            "total": len(projects),
+            "active": is_active,
+            "completed": is_completed,
+            "on_hold": is_on_hold,
+            "pending": pending,
+            "overdue": is_overdue,
         }
 
 
     def render_user_information(self):
-        user = self._find_user
+        user = self._find_user()
         if not user:
             print("User not found")
             return False
@@ -1574,9 +1593,9 @@ class ProductivityOverviewDashboard:
         project_metrics = self.projects_metrics(projects)
 
         print("\n=== Productivity Overview ===")
-        print(f"\nTasks    : total={task_metrics['total']} completed={task_metrics['completed']} pending={task_metrics['pending']}")
-        print(f"\n           overdue={task_metrics['overdue']} due_today={task_metrics['due_today']} due_3d={task_metrics['due_in_3_days']} due_7d={task_metrics['due_in_7_days']}")
-        print(f"\nHabits   : total={habit_metrics['total']} completed_today={habit_metrics['completed_today']}")
+        print(f"\nTasks : total={task_metrics['total']} completed={task_metrics['completed']} pending={task_metrics['pending']}")
+        print(f"\noverdue : {task_metrics['overdue']} due_today={task_metrics['due_today']} due_3d={task_metrics['due_in_3_days']} due_7d={task_metrics['due_in_7_days']}")
+        print(f"\nHabits : total={habit_metrics['total']} completed_today={habit_metrics['completed_today']}")
         print(f"\nProjects : total={project_metrics['total']} completed={project_metrics['completed']} pending={project_metrics['pending']}")
         return True
 
@@ -1793,7 +1812,7 @@ if __name__ == "__main__":
 
 #Features to add
 #1 Deadline system (Done)
-#2 Dashboard system (Almost Done)
+#2 Dashboard system (Done)
 #3 Search system (Done)
 #4 Tag System (done)
 #5 Archive system  (Done)
@@ -1801,7 +1820,7 @@ if __name__ == "__main__":
 #7 Activity log system (Not started)
 #8 Recurring task system (Not started)
 #9 Data validation system (Not Started)
-#10 Export system (Not Started)
+#10 Export data (Not Started)
 #11 Nested project system (e.g Tasks inside projects) (Not started)
 #12 Priority System (Not started)
 #13 Add a settings system (Not started)

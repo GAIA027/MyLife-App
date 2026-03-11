@@ -7,7 +7,10 @@ from zoneinfo import ZoneInfo
 from pathlib import Path
 import jwt
 import json
+import logging
 
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
+logger = logging.getLogger("MyLife_main.py")
 main_db = Path(__name__).with_name("MyLife_database_file")
 
 def load_database():
@@ -44,6 +47,7 @@ def get_curent_user_from_token(token : str) -> dict | None:
     try:
         claims = decode_access_token(token)
     except jwt.ExpiredSignatureError:
+        logging.warning("Token for this section has expired, Request for logging")
         print("Session expired. Please login again")
     except jwt.InvalidTokenError:
         print("Invalid token")
