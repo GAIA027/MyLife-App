@@ -34,6 +34,13 @@ if not JWT_SECRET:
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_MINUTES = 60
 
+def validate_date_input(date_text : str) -> bool:
+    try:
+        datetime.strptime(date_text.strip() ,"%Y-%m-%d")
+        return True
+    except ValueError:
+        return False
+
 def add_months(datetime : datetime,  months : int) -> datetime:
     year = datetime.year + (datetime.month - 1 + months) //12
     month = (datetime.month - 1 + months) % 12 + 1
@@ -41,18 +48,21 @@ def add_months(datetime : datetime,  months : int) -> datetime:
     return datetime.replace(year=year, month=month, day=min(datetime.day, last_day))
 
 def calculate_next_due(due_iso : str, rule : dict) -> str:
-    due = datetime.isoformat(due_iso)
+    try:
+        due = datetime.fromisoformat(due_iso)
+    except ValueError:
+        due = datetime.strptime(due_iso, "%Y-%m-%d %H:%M")
     interval = int(rule.get("interval", 1))
-    frequency = (rule.get("freq") or "").lower()
+    frequency = (rule.get("frequency") or rule.get("freq") or "").lower()
     if frequency == "daily":
-        next = due + timedelta(days=interval)
+        next_due = due + timedelta(days=interval)
     elif frequency == "weekly":
-        next = due + timedelta(weeks=interval)
+        next_due = due + timedelta(weeks=interval)
     elif frequency == "monthly":
-        next = add_months(due, interval)
+        next_due = add_months(due, interval)
     else:
         raise ValueError("Unsupported frequency (use daily/weekly/monthly)")
-    
+    return next_due.isoformat(timespec="seconds")
 
 def is_due_within_days(task: dict, days: int, tz: str = "Asia/Dubai") -> bool:
     raw_deadline = task.get("task_deadline")
@@ -315,106 +325,164 @@ def user_login():
 class task:
     def __init__(self):
         pass
-    def create_task(current_user : str, task_name, task_type, task_description, created_at, task_deadline, task_notes):
+    def create_task(self, current_user : dict, task_name, task_type, task_description, created_at, task_deadline, task_notes, recurring=False, rule=None):
+        current_user = ensure_current_user(current_user)
+        if not current_user:
+            return False
+
         data = load_database()
-
-        for user in data["users"]:
-            if user["id"] == current_user["id"]:
-
-                task = {
+        for user in data.get("users", []):
+            if str(user.get("id")) == str(current_user.get("id")):
+                user.setdefault("tasks", []).append({
                     "id" : generate_id(),
+                    "user_id" : str(current_user.get("id")),
                     "task_name": task_name,
                     "task_type": task_type,
                     "task_description" : task_description,
                     "created_at": created_at,
-                    "task_deadaline": task_deadline,
-                    "task_notes": task_notes
-                    
-                }
-                data["tasks"].append(task)
+                    "task_deadline": task_deadline,
+                    "task_notes": task_notes,
+                    "updated_at": now_dubai(),
+                    "status": "pending",
+                    "completed_at": None,
+                    "is_recurring": recurring,
+                    "recurrence": rule,
+                    "completion_log": []
+                })
                 save_database(data)
                 return True
-            return f"user ID not found"
-    def view_tasks(self):
+        return False
+
+    def view_tasks(self, current_user : dict):
+        current_user = ensure_current_user(current_user)
+        if not current_user:
+            return []
+
         data = load_database()
-        return data["tasks"]
+        for user in data.get("users", []):
+            if str(user.get("id")) == str(current_user.get("id")):
+                return user.get("tasks", [])
+        return []
     
-    def update_task(self,user_update_request,  task_name : str, task_description : str, task_type : str, created_at : str, task_deadline : str, task_notes : str) -> str:
+    def update_task(self, current_user : dict, user_update_request,  task_name : str, task_description : str, task_type : str, task_deadline : str, task_notes : str) -> str:
+        current_user = ensure_current_user(current_user)
+        if not current_user:
+            return "Please log in first."
+
         data = load_database()
-        for task in data["tasks"]:
-                if task["task_name"] == user_update_request:
-                    task.update({
-                    "task_name": task_name,
-                    "task_type": task_type,
-                    "task_description" : task_description,
-                    "created_at": created_at,
-                    "task_deadaline": task_deadline,
-                    "task_notes": task_notes
-                })
-                
-                return f"Task updated successfully!"
+        for user in data.get("users", []):
+            if str(user.get("id")) != str(current_user.get("id")):
+                continue
+            for task_item in user.setdefault("tasks", []):
+                if task_item.get("task_name") == user_update_request:
+                    task_item.update({
+                        "task_name": task_name,
+                        "task_type": task_type,
+                        "task_description" : task_description,
+                        "task_deadline": task_deadline,
+                        "task_notes": task_notes,
+                        "updated_at": now_dubai(),
+                    })
+                    save_database(data)
+                    return f"Task updated successfully!"
         return f"Task not found! Please check the title and try again."
     
-    def delete_task(self, delete_request):
+    def delete_task(self, current_user : dict, delete_request):
+        current_user = ensure_current_user(current_user)
+        if not current_user:
+            return f"Please log in first."
+
         data = load_database()
-        for task in data["tasks"]:
-            if task["task_name"] == delete_request:
-                data["tasks"].remove(task)
-                return f"Task deleted successfully!"
-            return f"Task not found"
+        for user in data.get("users", []):
+            if str(user.get("id")) != str(current_user.get("id")):
+                continue
+            tasks = user.setdefault("tasks", [])
+            for task_item in tasks:
+                if task_item.get("task_name") == delete_request:
+                    tasks.remove(task_item)
+                    save_database(data)
+                    return f"Task deleted successfully!"
+        return f"Task not found"
+
+    def mark_task_as_complete(self, current_user : dict, task_name : str):
+        current_user = ensure_current_user(current_user)
+        if not current_user:
+            return False
+
+        data = load_database()
+        for user in data.get("users", []):
+            if str(user.get("id")) != str(current_user.get("id")):
+                continue
+
+            tasks = user.setdefault("tasks", [])
+            for task_item in tasks:
+                if task_item.get("task_name", "").strip().lower() != task_name.strip().lower():
+                    continue
+
+                now = now_dubai()
+                task_item.setdefault("completion_log", []).append(now)
+                if task_item.get("is_recurring") and task_item.get("recurrence"):
+                    task_item["task_deadline"] = calculate_next_due(task_item["task_deadline"], task_item["recurrence"])
+                    task_item["status"] = "pending"
+                    task_item["completed_at"] = None
+                else:
+                    task_item["status"] = "completed"
+                    task_item["completed_at"] = now
+                task_item["updated_at"] = now
+                save_database(data)
+                return True
+        return False
+
+    def set_priority(self, current_user : dict, task_id, priority : int):
+        current_user = ensure_current_user(current_user)
+        if not current_user:
+            return False
+
+        data = load_database()
+        for user in data.get("users", []):
+            if str(user.get("id")) != str(current_user.get("id")):
+                continue
+            tasks = user.setdefault("tasks", [])
+            for task_item in tasks:
+                if str(task_item.get("id")) != str(task_id):
+                    continue
+                task_item["priority"] = priority
+                task_item["updated_at"] = now_dubai()
+                save_database(data)
+                return True
+        return False
 
 def show_tasks(current_user):
     current_user = ensure_current_user(current_user)
     if not current_user:
         return
-    data = load_database()
+    tasks = task_main.view_tasks(current_user)
+    if not tasks:
+        print("No tasks found for this user.")
+    else:
+        print("\n===Tasks===")
+        for task_item in tasks:
+            print(
+                f"- {task_item.get('task_name', 'Untitled')} "
+                f"[{task_item.get('status', 'pending')}] "
+                f"(deadline: {task_item.get('task_deadline', 'N/A')})"
+                f"\n  Description: {task_item.get('task_description', '')}"
+                f"\n  Notes: {task_item.get('task_notes', '')}"
+                f"\n  Created at: {task_item.get('created_at', '')}"
+                f"\n  Updated at: {task_item.get('updated_at', '')}"
+            )
 
-    for user in data.get("users", []):
-        if str(user.get("id")) != str(current_user.get("id")):
-            continue
-
-        tasks = user.get("tasks", [])
-        if not tasks:
-            print("No tasks found for this user.")
-        else:
-            print("\n===Tasks===")
-            for task in tasks:
-                logging.info(
-                    f"- {task.get('task_name', 'Untitled')} "
-                    f"[{task.get('status', 'pending')}] "
-                    f"(deadline: {task.get('task_deadline', 'N/A')})"
-                    f"\n  Description: {task.get('task_description', '')}"
-                    f"\n  Notes: {task.get('task_notes', '')}"
-                    f"\n  Created at: {task.get('created_at', '')}"
-                    f"\n  Updated at: {task.get('updated_at', '')}"
-                )
-
-        if input("Main menu  Yes/No: ").strip().lower() == "yes":
-            app_dashboard(current_user)
-        return
-
-    logging.info("Current user not found.")
+    if input("Main menu  Yes/No: ").strip().lower() == "yes":
+        app_dashboard(current_user)
 
 def remove_task(current_user):
     current_user = ensure_current_user(current_user)
     if not current_user:
         return
-
-    data = load_database()
     delete_request = input("Enter the title of the task you want to delete: ")
-    for user in data.get("users", []):
-        if str(user.get("id")) != str(current_user.get("id")):
-            continue
-        tasks = user.setdefault("tasks", [])
-        for task in tasks:
-            if task.get("task_name") == delete_request:
-                tasks.remove(task)
-                save_database(data)
-                print("Task deleted successfully!")
-                if input("Main menu  Yes/No: ").strip().lower() == "yes":
-                    app_dashboard(current_user)
-                return
-    print("Task not found! Please check the title and try again.")
+    print(task_main.delete_task(current_user, delete_request))
+    if input("Main menu  Yes/No: ").strip().lower() == "yes":
+        app_dashboard(current_user)
 
 task_main = task()
 
@@ -423,7 +491,6 @@ def record_task(current_user):
     current_user = ensure_current_user(current_user)
     if not current_user:
         return
-    data = load_database()
 
     task_title = input("\nTask title: ").strip()
     task_description = input("\nDescription: ").strip()
@@ -441,72 +508,57 @@ def record_task(current_user):
     if recurring:
         frequency = input("Frequency (daily/weekly/monthly) : ").strip().lower()
         interval = int(input("Every how many? (e.g. 1) : ").strip() or "1")
-        rule = {"frequency" : frequency, "interval" : interval}    
-    for user in data.get("users", []):
-        if str(user.get("id")) == str(current_user.get("id")):
-            user.setdefault("tasks", []).append({
-                "id": generate_id(),
-                "task_name": task_title,
-                "task_description": task_description,
-                "task_type": task_type,
-                "create_at": created_at,
-                "task_deadline": task_deadline,
-                "task_notes": task_notes,
-                "created_at" : now_dubai(),
-                "updated_at " : now_dubai(),
-                "status " : "pending",
-                "completed_at" : None,
-                "is_recurring" : recurring,
-                "recurrence" : rule,
-                "completion_log" : []
-            })
-            
-            save_database(data)
-            logger.info("Task created for user_id=%s with title=%s", current_user.get("id"), task_title)
-            print(f"\n===Task Recorded Successfully. Saved to {database_file}===")
-            app_dashboard(current_user)
-            return
+        rule = {"frequency" : frequency, "interval" : interval}
+    if task_main.create_task(
+        current_user,
+        task_title,
+        task_type,
+        task_description,
+        created_at,
+        task_deadline,
+        task_notes,
+        recurring=recurring,
+        rule=rule,
+    ):
+        logger.info("Task created for user_id=%s with title=%s", current_user.get("id"), task_title)
+        print(f"\n===Task Recorded Successfully. Saved to {database_file}===")
+        app_dashboard(current_user)
+        return
 
     logger.warning("Task creation failed: current user not found in database user_id=%s", current_user.get("id"))
     print("Current user not found in database.")
 
 
 def update_task(current_user):
+    current_user = ensure_current_user(current_user)
     if not current_user:
         print("Please log in first.")
         return
 
-    data = load_database()
     task_title = input("Enter the title of the task you want to update: ")
-    for user in data.get("users", []):
-        if str(user.get("id")) != str(current_user.get("id")):
-            continue
-        tasks = user.setdefault("tasks", [])
-        for task in tasks:
-            if task.get("task_name") != task_title:
-                continue
-            print("Task found! Enter the new details:")
-            new_task_title = input("New task title: ").strip()
-            task_description = input("New description: ").strip()
-            task_type = input("New task type: ").strip()
-            raw_task_deadline = input("Task deadline (YYYY-MM-DD HH:MM): ").strip()
-            task_deadline, deadline_error = validate_deadline_input(raw_task_deadline)
-            if deadline_error:
-                print(deadline_error)
-                return
-            task_notes = input("New task notes: ").strip()
-            task.update({
-                "task_name": new_task_title or task.get("task_name"),
-                "task_type": task_type or task.get("task_type", ""),
-                "task_description": task_description or task.get("task_description", ""),
-                "task_deadline": task_deadline,
-                "task_notes": task_notes or task.get("task_notes", "")
-            })
-            task["updated_at"] = now_dubai()
-            save_database(data)
-            print("Task updated successfully!")
-            app_dashboard(current_user)
-            return
+    print("Task found! Enter the new details:")
+    new_task_title = input("New task title: ").strip()
+    task_description = input("New description: ").strip()
+    task_type = input("New task type: ").strip()
+    raw_task_deadline = input("Task deadline (YYYY-MM-DD HH:MM): ").strip()
+    task_deadline, deadline_error = validate_deadline_input(raw_task_deadline)
+    if deadline_error:
+        print(deadline_error)
+        return
+    task_notes = input("New task notes: ").strip()
+    result = task_main.update_task(
+        current_user,
+        task_title,
+        new_task_title or task_title,
+        task_description,
+        task_type,
+        task_deadline,
+        task_notes,
+    )
+    print(result)
+    if "successfully" in result.lower():
+        app_dashboard(current_user)
+        return
     print("Task not found! Please check the title and try again.")
 
 def mark_task_as_complete(current_user):
@@ -514,43 +566,11 @@ def mark_task_as_complete(current_user):
     if not current_user:
         return
     
-    data = load_database()
     task_name = input("Enter task name to mark complete: ").strip().lower()
-    now = now_dubai()
-
-    for user in data.get("users", []):
-        if str(user.get("id")) != str(current_user.get("id")):
-            continue
-
-        tasks = user.setdefault("tasks", [])
-        for task in tasks:
-            if task.get("task_name", "").strip().lower() != task_name:
-                continue
-
-            task["status"] = "completed"
-            task["completed_at"] = now
-            task["updated_at"] = now
-            print("Task marked as completed.")
-            return
-        
-        now = now_dubai()
-        task["completion_log"] = task.get("completion_log", [])
-        task["completion_log"].append(now)
-
-        if task.get("is_recurring") and task.get("completion_log", []):
-            task["task_deadline"] = calculate_next_due(task["task_deadline"], task["recurrence"])
-            task["status"] = "pending"
-            task["completed_at"] = None
-        else:
-            task["status"] = "completed"
-            task["completed_at"] = now
-
-        task["updated_at"] = now
-        save_database(data)
-        
-        print("Task not found")
+    if task_main.mark_task_as_complete(current_user, task_name):
+        print("Task marked as completed.")
         return
-    print("Current user not found")
+    print("Task not found")
                     
 def create_habit(current_user):
     current_user = ensure_current_user(current_user)
@@ -571,7 +591,7 @@ def create_habit(current_user):
     for user in data.get("users", []):
         if str(user.get("id")) == str(current_user.get("id")):
             user.setdefault("habits", []).append({
-                "user_id" : generate_id(),
+                "user_id" : str(current_user.get("id")),
                 "habit_name": habit_name,
                 "habit_description" : habit_description,
                 "habit_frequency" : habit_frequency,
@@ -738,29 +758,112 @@ class project:
         self.projects : list[dict[str, str | int]] = []
 
     def create_projects(self,
+                        current_user : dict,
                         project_title : str,
                         project_description : str,
                         project_duration : int,
                         project_created_at : str,
+                        project_deadline : str,
                         project_notes : str ) -> dict[str, str | int]:
-        self.projects.append({
-            "project_title" : project_title,
-            "project_description" : project_description,
-            "project_duration" : project_duration,
-            "project_created_at" : project_created_at,
-            "project_notes" : project_notes
-        })
+        current_user = ensure_current_user(current_user)
+        if not current_user:
+            return {}
+
+        data = load_database()
+        for user in data.get("users", []):
+            if str(user.get("id")) == str(current_user.get("id")):
+                project = {
+                    "user_id" : str(current_user.get("id")),
+                    "project_title" : project_title,
+                    "project_description" : project_description,
+                    "project_duration" : project_duration,
+                    "project_created_at" : project_created_at,
+                    "project_deadline" : project_deadline,
+                    "project_notes" : project_notes,
+                    "created_at" : now_dubai(),
+                    "updated_at" : now_dubai(),
+                    "status" : "pending",
+                    "completed_at" : None
+                }
+                user.setdefault("projects", []).append(project)
+                save_database(data)
+                return project
+        return {}
     
-    def show_projects(self):
-        output = self.projects
-        return output
+    def show_projects(self, current_user : dict):
+        current_user = ensure_current_user(current_user)
+        if not current_user:
+            return []
+
+        data = load_database()
+        for user in data.get("users", []):
+            if str(user.get("id")) == str(current_user.get("id")):
+                return user.get("projects", [])
+        return []
     
-    def delete_project(self, project_delete_request : str):
-        for project in self.projects:
-            if project["project_title"] == project_delete_request:
-                self.projects.remove(project)
-                return f"Project deleted successfully"
+    def update_project(self, current_user : dict, project_update_request : str, project_title : str, project_description : str, project_deadline : str, project_notes : str):
+        current_user = ensure_current_user(current_user)
+        if not current_user:
+            return "Please log in first"
+
+        data = load_database()
+        for user in data.get("users", []):
+            if str(user.get("id")) != str(current_user.get("id")):
+                continue
+            projects = user.setdefault("projects", [])
+            for project in projects:
+                if project.get("project_title") == project_update_request:
+                    project.update({
+                        "project_title" : project_title,
+                        "project_description" : project_description,
+                        "project_deadline" : project_deadline,
+                        "project_notes" : project_notes,
+                        "updated_at" : now_dubai(),
+                    })
+                    save_database(data)
+                    return "Project updated successfully"
         return "Project not found"
+
+    def delete_project(self, current_user : dict, project_delete_request : str):
+        current_user = ensure_current_user(current_user)
+        if not current_user:
+            return f"Please log in first"
+
+        data = load_database()
+        for user in data.get("users", []):
+            if str(user.get("id")) != str(current_user.get("id")):
+                continue
+            projects = user.setdefault("projects", [])
+            for project in projects:
+                if project["project_title"] == project_delete_request:
+                    projects.remove(project)
+                    save_database(data)
+                    return f"Project deleted successfully"
+        return "Project not found"
+
+    def mark_project_as_complete(self, current_user : dict, project_title : str):
+        current_user = ensure_current_user(current_user)
+        if not current_user:
+            return False
+
+        data = load_database()
+        for user in data.get("users", []):
+            if str(user.get("id")) != str(current_user.get("id")):
+                continue
+
+            projects = user.setdefault("projects", [])
+            for project in projects:
+                title = project.get("project_title", "").strip().lower()
+                if title != project_title.strip().lower():
+                    continue
+
+                now = now_dubai()
+                project["status"] = "completed"
+                project["completed_at"] = now
+                project["updated_at"] = now
+                save_database(data)
+                return True
+        return False
 
 project_main = project()
 
@@ -768,7 +871,6 @@ def record_project(current_user):
     current_user = ensure_current_user(current_user)
     if not current_user:
         return
-    data = load_database()
     project_title = input("Project title: ").strip().lower()
     project_description = input("Description: ").strip()
     try:
@@ -785,37 +887,28 @@ def record_project(current_user):
         print(deadline_error)
         return
     project_notes = input("Project notes: ").strip()
-
-    for user in data.get("users", []):
-        if str(user.get("id")) == str(current_user.get("id")):
-            user.setdefault("projects", []).append({
-                "project_title" : project_title,
-                "project_description" : project_description,
-                "project_duration" : project_duration,
-                "project_created_at" : project_created_at,
-                "project_deadline" : project_deadline,
-                "project_notes" : project_notes,
-                "created_at" : now_dubai(),
-                "updated_at " : now_dubai(),
-                "status" : "pending",
-                "completed_at" : None
-            })
-            save_database(data)
-            logger.info("Project created for user_id=%s title=%s", current_user.get("id"), project_title)
-            print("Project created successfully")
-            app_dashboard(current_user)
+    project_record = project_main.create_projects(
+        current_user,
+        project_title,
+        project_description,
+        project_duration,
+        project_created_at,
+        project_deadline,
+        project_notes,
+    )
+    if project_record:
+        logger.info("Project created for user_id=%s title=%s", current_user.get("id"), project_title)
+        print("Project created successfully")
+        app_dashboard(current_user)
+        return
+    print("Current user not found in database.")
     
 
 def view_projects(current_user):
     if not current_user:
         print("Please login first")
         return
-    data = load_database()
-    for user in data.get("users", []):
-        if str(user.get("id")) != str(current_user.get("id")):
-            continue
-        print(user.get("projects", []))
-        break
+    print(project_main.show_projects(current_user))
     if input("Main menu  Yes/No: ").strip().lower() == "yes":
         app_dashboard(current_user)
     
@@ -824,86 +917,48 @@ def update_project_task(current_user):
     current_user = ensure_current_user(current_user)
     if not current_user:
         return
-    data = load_database()
     project_update_request = input("Project title : ")
-    for user in data.get("users", []):
-        if str(user.get("id")) != str(current_user.get("id")):
-            continue
-        projects = user.setdefault("projects", [])
-        for project in projects:
-            if project.get("project_title") != project_update_request:
-                continue
-            print("Project found! Enter new details")
-            project_title = input("New project title: ").strip()
-            project_description = input("New description: ").strip()
-            project_notes = input("Project notes: ").strip()
-            raw_project_deadline = input("Project deadline (YYYY-MM-DD HH:MM): ").strip()
-            project_deadline, deadline_error = validate_deadline_input(raw_project_deadline)
-            if deadline_error:
-                print(deadline_error)
-                return
-            project.update({
-                "project_title": project_title or project.get("project_title", ""),
-                "project_description": project_description or project.get("project_description", ""),
-                "project_deadline": project_deadline,
-                "project_notes": project_notes or project.get("project_notes", ""),
-                "updated_at": now_dubai(),
-            })
-            save_database(data)
-            print("Project updated successfully!")
-            app_dashboard(current_user)
-            return
+    print("Project found! Enter new details")
+    project_title = input("New project title: ").strip()
+    project_description = input("New description: ").strip()
+    project_notes = input("Project notes: ").strip()
+    raw_project_deadline = input("Project deadline (YYYY-MM-DD HH:MM): ").strip()
+    project_deadline, deadline_error = validate_deadline_input(raw_project_deadline)
+    if deadline_error:
+        print(deadline_error)
+        return
+    result = project_main.update_project(
+        current_user,
+        project_update_request,
+        project_title or project_update_request,
+        project_description,
+        project_deadline,
+        project_notes,
+    )
+    print(result)
+    if "successfully" in result.lower():
+        app_dashboard(current_user)
+        return
     print("Project not found! Please check the title and try again.")
 
 def delete_project(current_user):
     if not current_user:
         print("Please login first")
         return
-    data = load_database()
     project_delete_request = input("Enter the title of the project you want to delete: ")
-    for user in data.get("users", []):
-        if str(user.get("id")) != str(current_user.get("id")):
-            continue
-        projects = user.setdefault("projects", [])
-        for project in projects:
-            if project.get("project_title") == project_delete_request:
-                projects.remove(project)
-                save_database(data)
-                print("Project deleted successfully!")
-                if input("Main menu  Yes/No: ").strip().lower() == "yes":
-                    app_dashboard(current_user)
-                return
-    print("Project not found! Please check the title and try again.")
+    print(project_main.delete_project(current_user, project_delete_request))
+    if input("Main menu  Yes/No: ").strip().lower() == "yes":
+        app_dashboard(current_user)
 
 def mark_project_as_complete(current_user):
     current_user = ensure_current_user(current_user)
     if not current_user:
         return
-    
-    data = load_database()
     project_title = input("Enter the project name you want to mark complete: ").strip().lower()
-    now = now_dubai()
-
-    for user in data.get("users", []):
-        if str(user.get("id")) != str(current_user.get("id")):
-            continue
-
-        projects = user.setdefault("projects", [])
-        for project in projects:
-            title = project.get("project_title", "").strip().lower()
-            if title != project_title:
-                continue
-
-            project["status"] = "completed"
-            project["completed_at"] = now
-            project["updated_at"] = now
-            save_database(data)
-            print("Project marked as completed.")
-            return
-
-        print("Project not found.")
+    if project_main.mark_project_as_complete(current_user, project_title):
+        print("Project marked as completed.")
         return
-    print("Current user not found")
+    print("Project not found.")
 
 
 def exit_app(current_user=None):
@@ -922,21 +977,13 @@ def user_register_text():
 
 
 def set_priority(task_id, cureent_user):
-    data = load_database()
-
-    for user in data.get("users"):
-        if str(user.get("id")) == str(cureent_user.get("id")):
-            tasks = user.setdefault("tasks", [])
-
-            for task in tasks:
-                if task["id"] == task_id:
-                    priority = int(input("priority level\n1 - very low\n2 - low\n3 - Medium\n4 - high\n5 - Very high"))
-                    if 1 <= priority <= 5:
-                        task["priority"] = priority
-                        save_database(data)
-                        print("priority updated")
-                    else:
-                        return f"invalid range"
+    priority = int(input("priority level\n1 - very low\n2 - low\n3 - Medium\n4 - high\n5 - Very high"))
+    if 1 <= priority <= 5:
+        if task_main.set_priority(cureent_user, task_id, priority):
+            print("priority updated")
+            return True
+        return f"Task not found"
+    return f"invalid range"
 
 @dataclass
 class ArchiveStore:
@@ -1759,7 +1806,7 @@ def task_dashboard(current_user):
     elif user_request == 6:
         remove_task(current_user)
     elif user_request == 7:
-        app_dashboard(current_user)
+        return
 
 
 def projects_dashboard(current_user):
@@ -1782,7 +1829,7 @@ def projects_dashboard(current_user):
     elif user_request == 5:
         delete_project(current_user)
     elif user_request == 6:
-        app_dashboard(current_user)
+        return
     else:
         print("Enter a valid number")
 
@@ -1816,12 +1863,10 @@ def app_dashboard(current_user : dict | None):
     print("\n3. MyProjects")
     print("\n4. MyHabits")
     print("\n5. MyCalendar")
-    print("\n6. MyFitness")
-    print("\n7. MyFinance")    
-    print("\n8. MyArchive")
-    print("\n9. Settings") 
-    print("\n10. Tags")  
-    print("\n11. Log out")
+    print("\n6. MyArchive")
+    print("\n7. Settings")
+    print("\n8. Tags")
+    print("\n9. Log out")
     user_request = int(input())
     if user_request == 1:
         ProductivityOverviewDashboard(current_user).render_user_information()
@@ -1834,17 +1879,12 @@ def app_dashboard(current_user : dict | None):
     elif user_request == 5:
         print("Calendar tracking coming soon")
     elif user_request == 6:
-        print("Fitness management coming soon")
-        app_dashboard(current_user)
-    elif user_request == 7:
-        print("Finance management coming soon")
-    elif user_request == 8:
         archive_dashboard(current_user)
-    elif user_request == 9:
+    elif user_request == 7:
         app_settings(current_user)
-    elif user_request == 10:
+    elif user_request == 8:
         tag_dashboard(current_user)
-    elif user_request == 11:
+    elif user_request == 9:
         exit_app(current_user)
 
 def app_UI():
@@ -1857,11 +1897,13 @@ def app_UI():
     if user_choice == 1:
         user = user_create_account()
         if user:
-            app_dashboard(user)
+            from app.modules.MyLife_main import MyLife_dashboard
+            MyLife_dashboard(user)
     elif user_choice == 2:
         user, token = user_login()
         if user:
-            app_dashboard(user)
+            from app.modules.MyLife_main import MyLife_dashboard
+            MyLife_dashboard(user)
     elif user_choice == 3:
         exit_app()
 

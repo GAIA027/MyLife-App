@@ -1,13 +1,49 @@
 {
     "events": [
         {
-      "id": "ev_001",
-      "user_id": "u_001",
-      "title": "Study SQL",
-      "description": "Practice joins",
-      "starts_at": "2026-03-03T20:00:00+04:00",
-      "ends_at": "2026-03-03T21:30:00+04:00",
-      "status": "scheduled"
+            "id": "ev_LtOPiBu4Hl_01",
+            "user_id": "LtOPiBu4Hl",
+            "title": "Study SQL (dedsec)",
+            "description": "Practice joins",
+            "starts_at": "2026-03-03T20:00:00+04:00",
+            "ends_at": "2026-03-03T21:30:00+04:00",
+            "status": "scheduled"
+        },
+        {
+            "id": "ev_JItEZ3ns9u_02",
+            "user_id": "JItEZ3ns9u",
+            "title": "Study SQL (g.a.i.a)",
+            "description": "Practice joins",
+            "starts_at": "2026-03-03T20:00:00+04:00",
+            "ends_at": "2026-03-03T21:30:00+04:00",
+            "status": "scheduled"
+        },
+        {
+            "id": "ev_HofuJ4Cyub_03",
+            "user_id": "HofuJ4Cyub",
+            "title": "Study SQL (smoketest_user)",
+            "description": "Practice joins",
+            "starts_at": "2026-03-03T20:00:00+04:00",
+            "ends_at": "2026-03-03T21:30:00+04:00",
+            "status": "scheduled"
+        },
+        {
+            "id": "ev_EXonuKoB7y_04",
+            "user_id": "EXonuKoB7y",
+            "title": "Study SQL (mustapha)",
+            "description": "Practice joins",
+            "starts_at": "2026-03-03T20:00:00+04:00",
+            "ends_at": "2026-03-03T21:30:00+04:00",
+            "status": "scheduled"
+        },
+        {
+            "id": "ev_PWLnGy55Yq_05",
+            "user_id": "PWLnGy55Yq",
+            "title": "Study SQL (abdul)",
+            "description": "Practice joins",
+            "starts_at": "2026-03-03T20:00:00+04:00",
+            "ends_at": "2026-03-03T21:30:00+04:00",
+            "status": "scheduled"
         }
     ]
 }

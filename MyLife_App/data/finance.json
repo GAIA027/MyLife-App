@@ -1,9 +1,53 @@
 {
     "accounts": [
         {
-            "id": "acc_001",
-            "user_id": "u_001",
-            "account_name": "Main Wallet",
+            "id": "acc_LtOPiBu4Hl_01",
+            "user_id": "LtOPiBu4Hl",
+            "account_name": "Main Wallet (dedsec)",
+            "account_type": "cash",
+            "currency": "USD",
+            "opening_balance": 0,
+            "current_balance": 0,
+            "created_at": "2026-03-03T10:00:00+04:00",
+            "updated_at": "2026-03-03T10:00:00+04:00"
+        },
+        {
+            "id": "acc_JItEZ3ns9u_02",
+            "user_id": "JItEZ3ns9u",
+            "account_name": "Main Wallet (g.a.i.a)",
+            "account_type": "cash",
+            "currency": "USD",
+            "opening_balance": 0,
+            "current_balance": 0,
+            "created_at": "2026-03-03T10:00:00+04:00",
+            "updated_at": "2026-03-03T10:00:00+04:00"
+        },
+        {
+            "id": "acc_HofuJ4Cyub_03",
+            "user_id": "HofuJ4Cyub",
+            "account_name": "Main Wallet (smoketest_user)",
+            "account_type": "cash",
+            "currency": "USD",
+            "opening_balance": 0,
+            "current_balance": 0,
+            "created_at": "2026-03-03T10:00:00+04:00",
+            "updated_at": "2026-03-03T10:00:00+04:00"
+        },
+        {
+            "id": "acc_EXonuKoB7y_04",
+            "user_id": "EXonuKoB7y",
+            "account_name": "Main Wallet (mustapha)",
+            "account_type": "cash",
+            "currency": "USD",
+            "opening_balance": 0,
+            "current_balance": 0,
+            "created_at": "2026-03-03T10:00:00+04:00",
+            "updated_at": "2026-03-03T10:00:00+04:00"
+        },
+        {
+            "id": "acc_PWLnGy55Yq_05",
+            "user_id": "PWLnGy55Yq",
+            "account_name": "Main Wallet (abdul)",
             "account_type": "cash",
             "currency": "USD",
             "opening_balance": 0,
@@ -14,23 +58,91 @@
     ],
     "categories": [
         {
-            "id": "cat_001",
-            "user_id": "u_001",
-            "name": "General",
+            "id": "cat_LtOPiBu4Hl_01",
+            "user_id": "LtOPiBu4Hl",
+            "name": "General (dedsec)",
+            "type": "expense",
+            "created_at": "2026-03-03T10:00:00+04:00"
+        },
+        {
+            "id": "cat_JItEZ3ns9u_02",
+            "user_id": "JItEZ3ns9u",
+            "name": "General (g.a.i.a)",
+            "type": "expense",
+            "created_at": "2026-03-03T10:00:00+04:00"
+        },
+        {
+            "id": "cat_HofuJ4Cyub_03",
+            "user_id": "HofuJ4Cyub",
+            "name": "General (smoketest_user)",
+            "type": "expense",
+            "created_at": "2026-03-03T10:00:00+04:00"
+        },
+        {
+            "id": "cat_EXonuKoB7y_04",
+            "user_id": "EXonuKoB7y",
+            "name": "General (mustapha)",
+            "type": "expense",
+            "created_at": "2026-03-03T10:00:00+04:00"
+        },
+        {
+            "id": "cat_PWLnGy55Yq_05",
+            "user_id": "PWLnGy55Yq",
+            "name": "General (abdul)",
             "type": "expense",
             "created_at": "2026-03-03T10:00:00+04:00"
         }
     ],
     "transactions": [
         {
-      "id": "txn_001",
-      "user_id": "u_001",
-      "account_id": "acc_001",
-      "category_id": "cat_001",
-      "txn_type": "expense",
-      "amount": 12.75,
-      "txn_date": "2026-03-03T11:00:00+04:00",
-      "description": "Lunch"
+            "id": "txn_LtOPiBu4Hl_01",
+            "user_id": "LtOPiBu4Hl",
+            "account_id": "acc_LtOPiBu4Hl_01",
+            "category_id": "cat_LtOPiBu4Hl_01",
+            "txn_type": "expense",
+            "amount": 12.75,
+            "txn_date": "2026-03-03T11:00:00+04:00",
+            "description": "Lunch (dedsec)"
+        },
+        {
+            "id": "txn_JItEZ3ns9u_02",
+            "user_id": "JItEZ3ns9u",
+            "account_id": "acc_JItEZ3ns9u_02",
+            "category_id": "cat_JItEZ3ns9u_02",
+            "txn_type": "expense",
+            "amount": 12.75,
+            "txn_date": "2026-03-03T11:00:00+04:00",
+            "description": "Lunch (g.a.i.a)"
+        },
+        {
+            "id": "txn_HofuJ4Cyub_03",
+            "user_id": "HofuJ4Cyub",
+            "account_id": "acc_HofuJ4Cyub_03",
+            "category_id": "cat_HofuJ4Cyub_03",
+            "txn_type": "expense",
+            "amount": 12.75,
+            "txn_date": "2026-03-03T11:00:00+04:00",
+            "description": "Lunch (smoketest_user)"
+        },
+        {
+            "id": "txn_EXonuKoB7y_04",
+            "user_id": "EXonuKoB7y",
+            "account_id": "acc_EXonuKoB7y_04",
+            "category_id": "cat_EXonuKoB7y_04",
+            "txn_type": "expense",
+            "amount": 12.75,
+            "txn_date": "2026-03-03T11:00:00+04:00",
+            "description": "Lunch (mustapha)"
+        },
+        {
+            "id": "txn_PWLnGy55Yq_05",
+            "user_id": "PWLnGy55Yq",
+            "account_id": "acc_PWLnGy55Yq_05",
+            "category_id": "cat_PWLnGy55Yq_05",
+            "txn_type": "expense",
+            "amount": 12.75,
+            "txn_date": "2026-03-03T11:00:00+04:00",
+            "description": "Lunch (abdul)"
         }
     ]
 }
