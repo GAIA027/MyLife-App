@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Income Transactions</title></head>
+<body>
+<h1>Income Transactions</h1>
+{% if not transactions %}<p>No income transactions found.</p>{% else %}
+<ul>{% for transaction in transactions %}<li>{{ transaction["amount"] }} | {{ transaction["txn_date"] }} | {{ transaction["description"] }}</li>{% endfor %}</ul>
+{% endif %}
+</body>
+</html>

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Edit Account</title></head>
+<body>
+<h1>Edit Account</h1>
+{% if error %}<p>{{ error }}</p>{% endif %}
+<form method="post">
+    <input type="text" name="account_name" value="{{ account['account_name'] if account else '' }}" required>
+    <input type="text" name="account_type" value="{{ account['account_type'] if account else '' }}" required>
+    <input type="text" name="currency" value="{{ account['currency'] if account else '' }}" required>
+    <button type="submit">Save</button>
+</form>
+</body>
+</html>

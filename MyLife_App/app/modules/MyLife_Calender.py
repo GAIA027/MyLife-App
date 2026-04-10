@@ -1,9 +1,15 @@
-#calendar tracker for MyLife app
+# calendar logic for MyLife app
+from typing import Any
+
 from app.modules.MyLife_Tracker import *
 
 
-def _get_user_record(current_user):
+def _get_user_record(current_user: dict[str, Any] | None) -> tuple[dict[str, Any], dict[str, Any] | None]:
+    current_user = ensure_current_user(current_user)
     data = load_database()
+    if not current_user:
+        return data, None
+
     user = next(
         (u for u in data.get("users", []) if str(u.get("id")) == str(current_user.get("id"))),
         None,
@@ -11,190 +17,95 @@ def _get_user_record(current_user):
     return data, user
 
 
-def _add_event(current_user):
+def create_calendar_event(
+    current_user: dict[str, Any] | None,
+    title: str,
+    event_type: str,
+    event_date: str,
+    notes: str = "",
+) -> dict[str, Any] | None:
     data, user = _get_user_record(current_user)
     if not user:
-        print("Current user not found.")
-        return
+        return None
 
-    title = input("Event title: ").strip()
-    event_type = input("Event type (e.g. work, personal, meeting): ").strip().lower()
-    event_date = input("Event date (YYYY-MM-DD HH:MM): ").strip()
-    notes = input("Event notes: ").strip()
-
-    user.setdefault("calendar_events", []).append(
-        {
-            "id": generate_id(),
-            "title": title or "untitled",
-            "event_type": event_type or "general",
-            "event_date": event_date,
-            "notes": notes,
-            "created_at": now_dubai(),
-            "updated_at": now_dubai(),
-        }
-    )
+    event = {
+        "id": generate_id(),
+        "title": title.strip() or "untitled",
+        "event_type": event_type.strip().lower() or "general",
+        "event_date": event_date,
+        "notes": notes.strip(),
+        "created_at": now_dubai(),
+        "updated_at": now_dubai(),
+    }
+    user.setdefault("calendar_events", []).append(event)
     save_database(data)
-    print("Event added to calendar.")
+    return event
 
 
-def _view_all_events(current_user):
+def list_calendar_events(current_user: dict[str, Any] | None) -> list[dict[str, Any]]:
     _, user = _get_user_record(current_user)
     if not user:
-        print("Current user not found.")
-        return
-
-    events = user.get("calendar_events", [])
-    if not events:
-        print("No calendar events found.")
-        return
-
-    print("\n=== Calendar Events ===")
-    for index, event in enumerate(events, start=1):
-        print(
-            f"{index}. {event.get('title', 'untitled')} - {event.get('event_date', '')} "
-            f"[{event.get('event_type', 'general')}]"
-        )
-        if event.get("notes"):
-            print(f"   notes: {event.get('notes')}")
+        return []
+    return user.get("calendar_events", [])
 
 
-def _group_events_by_type(current_user):
-    _, user = _get_user_record(current_user)
-    if not user:
-        print("Current user not found.")
-        return
-
-    grouped = {}
-    for event in user.get("calendar_events", []):
+def group_calendar_events_by_type(current_user: dict[str, Any] | None) -> dict[str, int]:
+    grouped: dict[str, int] = {}
+    for event in list_calendar_events(current_user):
         event_type = str(event.get("event_type", "general")).lower()
         grouped[event_type] = grouped.get(event_type, 0) + 1
-
-    if not grouped:
-        print("No events to group.")
-        return
-
-    print("\n=== Events Grouped By Type ===")
-    for event_type, total in grouped.items():
-        print(f"- {event_type}: {total}")
+    return grouped
 
 
-def events_menu(current_user):
-    while True:
-        print("\n=== Events Menu ===")
-        print("1. Add event")
-        print("2. View all events")
-        print("3. Group events by type")
-        print("4. Back")
-        user_request = input("Choose an option: ").strip()
-
-        if user_request == "1":
-            _add_event(current_user)
-        elif user_request == "2":
-            _view_all_events(current_user)
-        elif user_request == "3":
-            _group_events_by_type(current_user)
-        elif user_request == "4":
-            return
-        else:
-            print("Enter a valid option.")
-
-
-def _show_upcoming_deadlines(current_user):
+def list_upcoming_deadlines(current_user: dict[str, Any] | None) -> dict[str, list[dict[str, str]]]:
     _, user = _get_user_record(current_user)
     if not user:
-        print("Current user not found.")
-        return
+        return {"tasks": [], "projects": []}
 
-    tasks = user.get("tasks", [])
-    projects = user.get("projects", [])
+    task_deadlines = [
+        {
+            "id": str(task.get("id", "")),
+            "name": task.get("task_name", "untitled"),
+            "deadline": task.get("task_deadline"),
+        }
+        for task in user.get("tasks", [])
+        if task.get("task_deadline")
+    ]
 
-    print("\n=== Upcoming Task Deadlines ===")
-    found_task = False
-    for task in tasks:
-        deadline = task.get("task_deadline")
-        if deadline:
-            found_task = True
-            print(f"- {task.get('task_name', 'untitled')}: {deadline}")
-    if not found_task:
-        print("No task deadlines found.")
+    project_deadlines = [
+        {
+            "id": str(project.get("id", "")),
+            "name": project.get("project_title", "untitled"),
+            "deadline": project.get("project_deadline"),
+        }
+        for project in user.get("projects", [])
+        if project.get("project_deadline")
+    ]
 
-    print("\n=== Upcoming Project Deadlines ===")
-    found_project = False
-    for project in projects:
-        deadline = project.get("project_deadline")
-        if deadline:
-            found_project = True
-            print(f"- {project.get('project_title', 'untitled')}: {deadline}")
-    if not found_project:
-        print("No project deadlines found.")
+    return {"tasks": task_deadlines, "projects": project_deadlines}
 
 
-def deadlines_menu(current_user):
-    while True:
-        print("\n=== Deadlines Menu ===")
-        print("1. View upcoming deadlines")
-        print("2. Back")
-        user_request = input("Choose an option: ").strip()
+def get_calendar_overview(current_user: dict[str, Any] | None) -> dict[str, Any] | None:
+    _, user = _get_user_record(current_user)
+    if not user:
+        return None
 
-        if user_request == "1":
-            _show_upcoming_deadlines(current_user)
-        elif user_request == "2":
-            return
-        else:
-            print("Enter a valid option.")
-
-
-def reminders_menu(current_user):
-    while True:
-        print("\n=== Reminders Menu ===")
-        print("1. View reminder placeholders")
-        print("2. Back")
-        user_request = input("Choose an option: ").strip()
-
-        if user_request == "1":
-            print("Reminder creation and notifications will be implemented in this menu.")
-        elif user_request == "2":
-            return
-        else:
-            print("Enter a valid option.")
+    events = list_calendar_events(current_user)
+    deadlines = list_upcoming_deadlines(current_user)
+    return {
+        "calendar_events_count": len(events),
+        "tasks_count": len(user.get("tasks", [])),
+        "projects_count": len(user.get("projects", [])),
+        "events_by_type": group_calendar_events_by_type(current_user),
+        "upcoming_task_deadlines": deadlines["tasks"],
+        "upcoming_project_deadlines": deadlines["projects"],
+    }
 
 
-def MyCalendar_dashboard(current_user):
+def get_reminder_placeholders(current_user: dict[str, Any] | None) -> dict[str, Any]:
     current_user = ensure_current_user(current_user)
-    if not current_user:
-        return False
-
-    while True:
-        _, user = _get_user_record(current_user)
-        if not user:
-            print("Current user not found.")
-            return False
-
-        print("\n=== MyCalendar Dashboard ===")
-        print(f"Calendar events: {len(user.get('calendar_events', []))}")
-        print(f"Tasks: {len(user.get('tasks', []))}")
-        print(f"Projects: {len(user.get('projects', []))}")
-        print("\n1. Events menu")
-        print("2. Deadlines menu")
-        print("3. Reminders menu")
-        print("4. Back to main menu")
-        user_request = input("Choose an option: ").strip()
-
-        if user_request == "1":
-            events_menu(current_user)
-        elif user_request == "2":
-            deadlines_menu(current_user)
-        elif user_request == "3":
-            reminders_menu(current_user)
-        elif user_request == "4":
-            app_dashboard(current_user)
-            return True
-        else:
-            print("Enter a valid option.")
-
-
-# Features to be implemented in MyCalendar:
-# 1. Edit and delete events.
-# 2. Date-based filtering and month view rendering.
-# 3. Reminder scheduling with notification times.
-# 4. External calendar sync support.
+    return {
+        "current_user_id": str(current_user.get("id")) if current_user else None,
+        "status": "not_implemented",
+        "message": "Reminder creation and notifications will be implemented through routes/forms.",
+    }

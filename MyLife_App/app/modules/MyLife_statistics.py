@@ -1,56 +1,97 @@
+from typing import Any
+
 from app.modules.MyLife_Tracker import *
-
-def _get_user_record(current_user):
-    current_user = ensure_current_user()
-    if not current_user:
-        return
-    
-    data_loader = load_database()
-    current_id = str(current_user)
-    user = next((u for u in data_loader.get("users", []) if str(user.get("id")) == current_id), None)
-    if not user:
-        print("User not found")
-        return False   
+from app.modules.MyLife_Calender import get_calendar_overview
+from app.modules.MyLife_Fitness import load_fitness_database, _current_user_id, _fitness_record_belongs_to_user
+from app.modules.MyLife_Finance import get_user_finance_records
 
 
-def MyStatistics_dashboard(current_user):
+def _get_user_record(current_user: dict[str, Any] | None) -> dict[str, Any] | None:
     current_user = ensure_current_user(current_user)
     if not current_user:
-        return False
+        return None
 
-    while True:
-        user = _get_user_record(current_user)
-        if not user:
-            print("Current user not found.")
-            return False
-
-        print("\n=== MyStatistics Dashboard ===")
-        print(f"Tasks tracked: {len(user.get('tasks', []))}")
-        print(f"Habits tracked: {len(user.get('habits', []))}")
-        print(f"Projects tracked: {len(user.get('projects', []))}")
-        print(f"Fitness logs: {len(user.get('fitness', []))}")
-        print(f"Finance entries: {len(user.get('finance', []))}")
-        print("\n1. Productivity analytics menu")
-        print("2. Habit analytics menu")
-        print("3. Finance analytics menu")
-        print("4. Back to main menu")
-        user_request = input("Choose an option: ").strip()
-
-        if user_request == "1":
-            pass
-        elif user_request == "2":
-            pass
-        elif user_request == "3":
-            pass
-        elif user_request == "4":
-            app_dashboard(current_user)
-            return True
-        else:
-            print("Enter a valid option.")
+    data_loader = load_database()
+    current_id = str(current_user.get("id"))
+    return next((u for u in data_loader.get("users", []) if str(u.get("id")) == current_id), None)
 
 
-# Features to be implemented in MyStatistics:
-# 1. Time-range filtering (daily, weekly, monthly, custom).
-# 2. Chart rendering for trend visualization.
-# 3. Export analytics summaries.
-# 4. Goal-vs-actual performance dashboards.
+def _build_fitness_statistics(current_user: dict[str, Any] | None) -> dict[str, int]:
+    current_user_id = _current_user_id(current_user)
+    if not current_user_id:
+        return {
+            "meal_logs": 0,
+            "workout_sessions": 0,
+            "routines": 0,
+            "meal_plans": 0,
+        }
+
+    fitness_data = load_fitness_database()
+    return {
+        "meal_logs": len([meal for meal in fitness_data.get("meal_log", []) if _fitness_record_belongs_to_user(meal, current_user_id)]),
+        "workout_sessions": len([session for session in fitness_data.get("workout_sessions", []) if _fitness_record_belongs_to_user(session, current_user_id)]),
+        "routines": len([routine for routine in fitness_data.get("routines", []) if _fitness_record_belongs_to_user(routine, current_user_id)]),
+        "meal_plans": len([plan for plan in fitness_data.get("meal_plans", []) if _fitness_record_belongs_to_user(plan, current_user_id)]),
+    }
+
+
+def _build_finance_statistics(current_user: dict[str, Any] | None) -> dict[str, int]:
+    finance_records = get_user_finance_records(current_user)
+    if not finance_records:
+        return {"accounts": 0, "categories": 0, "transactions": 0}
+
+    return {
+        "accounts": len(finance_records.get("accounts", [])),
+        "categories": len(finance_records.get("categories", [])),
+        "transactions": len(finance_records.get("transactions", [])),
+    }
+
+
+def build_statistics_summary(current_user: dict[str, Any] | None) -> dict[str, Any] | None:
+    current_user = ensure_current_user(current_user)
+    if not current_user:
+        return None
+
+    user = _get_user_record(current_user)
+    if not user:
+        return None
+
+    fitness_stats = _build_fitness_statistics(current_user)
+    finance_stats = _build_finance_statistics(current_user)
+    calendar_stats = get_calendar_overview(current_user) or {}
+
+    return {
+        "tasks_tracked": len(user.get("tasks", [])),
+        "habits_tracked": len(user.get("habits", [])),
+        "projects_tracked": len(user.get("projects", [])),
+        "fitness": fitness_stats,
+        "finance": finance_stats,
+        "calendar": calendar_stats,
+    }
+
+
+def build_productivity_analytics(current_user: dict[str, Any] | None) -> dict[str, Any] | None:
+    user = _get_user_record(current_user)
+    if not user:
+        return None
+    return {
+        "tasks_total": len(user.get("tasks", [])),
+        "tasks_completed": len([task for task in user.get("tasks", []) if task.get("is_completed")]),
+        "projects_total": len(user.get("projects", [])),
+        "projects_completed": len([project for project in user.get("projects", []) if project.get("is_completed")]),
+    }
+
+
+def build_habit_analytics(current_user: dict[str, Any] | None) -> dict[str, Any] | None:
+    user = _get_user_record(current_user)
+    if not user:
+        return None
+    habits = user.get("habits", [])
+    return {
+        "habits_total": len(habits),
+        "habits_completed_today": len([habit for habit in habits if habit.get("completed_today")]),
+    }
+
+
+def build_finance_analytics(current_user: dict[str, Any] | None) -> dict[str, int]:
+    return _build_finance_statistics(current_user)

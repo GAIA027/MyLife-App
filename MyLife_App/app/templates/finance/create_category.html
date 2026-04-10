@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Category</title>
+</head>
+<body>
+    <h1>Create Category</h1>
+    {% if error %}<p>{{ error }}</p>{% endif %}
+    <form action="/finance/categories" method="post">
+        <input type="text" name="name" placeholder="Category name" required>
+        <input type="text" name="category_type" placeholder="Category type" required>
+        <button type="submit">Create Category</button>
+    </form>
+</body>
+</html>

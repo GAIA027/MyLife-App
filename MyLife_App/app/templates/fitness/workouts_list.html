@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workouts</title>
+</head>
+<body>
+    <h1>Workouts</h1>
+    {% if workouts %}
+    <pre>{{ workouts }}</pre>
+    {% else %}
+    <p>No workouts found.</p>
+    {% endif %}
+</body>
+</html>

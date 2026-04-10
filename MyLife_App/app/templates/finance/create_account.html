@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Finance Account</title>
+</head>
+<body>
+    <h1>Create Account</h1>
+    {% if error %}<p>{{ error }}</p>{% endif %}
+    <form action="/finance/accounts" method="post">
+        <input type="text" name="account_name" placeholder="Account name" required>
+        <input type="text" name="account_type" placeholder="Account type" required>
+        <input type="text" name="currency" placeholder="Currency" required>
+        <input type="number" step="0.01" name="opening_balance" placeholder="Opening balance" required>
+        <button type="submit">Create Account</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Transaction</title>
+</head>
+<body>
+    <h1>Create Transaction</h1>
+    {% if error %}<p>{{ error }}</p>{% endif %}
+    <form action="/finance/transactions" method="post">
+        <input type="text" name="account_id" placeholder="Account ID" required>
+        <input type="text" name="category_id" placeholder="Category ID" required>
+        <input type="text" name="txn_type" placeholder="Transaction type" required>
+        <input type="number" step="0.01" name="amount" placeholder="Amount" required>
+        <input type="text" name="txn_date" placeholder="YYYY-MM-DD" required>
+        <input type="text" name="description" placeholder="Description">
+        <button type="submit">Create Transaction</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Edit Transaction</title></head>
+<body>
+<h1>Edit Transaction</h1>
+{% if error %}<p>{{ error }}</p>{% endif %}
+<form method="post">
+    <input type="text" name="account_id" value="{{ transaction['account_id'] if transaction else '' }}" required>
+    <input type="text" name="category_id" value="{{ transaction['category_id'] if transaction else '' }}" required>
+    <input type="number" step="0.01" name="amount" value="{{ transaction['amount'] if transaction else '' }}" required>
+    <input type="text" name="txn_date" value="{{ transaction['txn_date'] if transaction else '' }}" required>
+    <input type="text" name="description" value="{{ transaction['description'] if transaction else '' }}">
+    <button type="submit">Save</button>
+</form>
+</body>
+</html>

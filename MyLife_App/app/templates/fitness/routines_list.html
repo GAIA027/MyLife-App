@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Routines</title>
+</head>
+<body>
+    <h1>Routines</h1>
+    {% if error %}<p>{{ error }}</p>{% endif %}
+    {% if routines %}
+    <pre>{{ routines }}</pre>
+    {% else %}
+    <p>No routines found.</p>
+    {% endif %}
+</body>
+</html>
