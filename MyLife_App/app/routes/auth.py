@@ -88,7 +88,8 @@ def login_submit(
         key="access_token",
         value=token,
         httponly=True,
-        samesite="lax"
+        secure=True,
+        samesite="lax",
     )
 
     return response
