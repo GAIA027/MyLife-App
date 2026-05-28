@@ -418,6 +418,23 @@ class AccountService:
         self.db.commit()
         return True
     
+    def reset_password(self, email_or_username: str, new_password: str) -> None:
+        user = (
+            self.db.query(UserModel)
+            .filter(
+                (UserModel.email == email_or_username) |
+                (UserModel.username == email_or_username)
+            )
+            .first()
+        )
+        if not user:
+            raise ValueError("No account found with that email or username.")
+        error = validate_password(new_password)
+        if error:
+            raise ValueError(error)
+        user.password_hash = hash_password(new_password)
+        self.db.commit()
+
     def change_password(self, current_user, current_password : str, new_password : str) -> str:
         u_id = str(current_user.get("id"))
         user_record = self.db.query(UserModel).filter(

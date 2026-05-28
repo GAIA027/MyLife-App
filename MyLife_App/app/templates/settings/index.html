@@ -11,82 +11,118 @@
     </div>
 </div>
 
-<div class="settings-grid">
+<div class="settings-layout">
 
-    <!-- ── Change Password ── -->
-    <div class="settings-card animate-in" style="animation-delay:0.05s">
-        <div class="settings-card-header">
-            <div class="settings-card-icon">
-                <i data-lucide="lock"></i>
-            </div>
-            <div>
-                <div class="settings-card-title">Change Password</div>
-                <div class="settings-card-desc">Update your account password</div>
-            </div>
-        </div>
+    <!-- ── Sidebar nav ── -->
+    <nav class="settings-nav animate-in" style="animation-delay:0.04s">
+        <a href="#security" class="settings-nav-item active">
+            <span class="settings-nav-icon"><i data-lucide="lock"></i></span>
+            Security
+        </a>
+        <a href="#appearance" class="settings-nav-item">
+            <span class="settings-nav-icon"><i data-lucide="palette"></i></span>
+            Appearance
+        </a>
+    </nav>
 
-        {% if success %}
-        <div class="alert-success">&#10003; {{ success }}</div>
-        {% endif %}
-        {% if error %}
-        <div class="alert-error">&#9888; {{ error }}</div>
-        {% endif %}
+    <!-- ── Content ── -->
+    <div class="settings-content">
 
-        <form action="/settings/change-password" method="post" class="settings-form"
-              x-data="{ loading: false }" @submit="loading = true">
-            <div class="field">
-                <label>Current Password</label>
-                <input type="password" name="current_password" required placeholder="Enter current password">
+        <!-- ── Security ── -->
+        <section id="security" class="settings-card animate-in" style="animation-delay:0.08s">
+            <div class="settings-card-header">
+                <div class="settings-card-icon"><i data-lucide="lock"></i></div>
+                <div>
+                    <div class="settings-card-title">Change Password</div>
+                    <div class="settings-card-desc">Update your account password. Min 8 chars, uppercase, lowercase, number and special character required.</div>
+                </div>
             </div>
-            <div class="field">
-                <label>New Password</label>
-                <input type="password" name="new_password" required placeholder="At least 8 characters">
+
+            {% if success %}
+            <div class="alert-success" style="padding:10px 14px;border-radius:8px;font-size:13px;">&#10003; {{ success }}</div>
+            {% endif %}
+            {% if error %}
+            <div class="alert-error" style="padding:10px 14px;border-radius:8px;font-size:13px;">&#9888; {{ error }}</div>
+            {% endif %}
+
+            <form action="/settings/change-password" method="post" class="settings-form"
+                  x-data="{ loading: false, showCur: false, showNew: false, showConf: false }"
+                  @submit="loading = true">
+
+                <div class="field">
+                    <label>Current Password</label>
+                    <div class="pw-wrap">
+                        <input :type="showCur ? 'text' : 'password'" name="current_password"
+                               required placeholder="Enter current password">
+                        <button type="button" class="pw-eye" @click="showCur = !showCur" tabindex="-1">
+                            <i :data-lucide="showCur ? 'eye-off' : 'eye'"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="settings-form-row">
+                    <div class="field">
+                        <label>New Password</label>
+                        <div class="pw-wrap">
+                            <input :type="showNew ? 'text' : 'password'" name="new_password"
+                                   required placeholder="At least 8 characters">
+                            <button type="button" class="pw-eye" @click="showNew = !showNew" tabindex="-1">
+                                <i :data-lucide="showNew ? 'eye-off' : 'eye'"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Confirm New Password</label>
+                        <div class="pw-wrap">
+                            <input :type="showConf ? 'text' : 'password'" name="confirm_password"
+                                   required placeholder="Repeat new password">
+                            <button type="button" class="pw-eye" @click="showConf = !showConf" tabindex="-1">
+                                <i :data-lucide="showConf ? 'eye-off' : 'eye'"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-form-footer">
+                    <button type="submit" class="btn-primary" :disabled="loading">
+                        <span x-show="!loading">Update Password</span>
+                        <span x-show="loading" style="display:none;">Updating…</span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- ── Appearance ── -->
+        <section id="appearance" class="settings-card animate-in" style="animation-delay:0.13s">
+            <div class="settings-card-header">
+                <div class="settings-card-icon"><i data-lucide="palette"></i></div>
+                <div>
+                    <div class="settings-card-title">Appearance</div>
+                    <div class="settings-card-desc">Customise how MyLife looks across all pages</div>
+                </div>
             </div>
-            <div class="field">
-                <label>Confirm New Password</label>
-                <input type="password" name="confirm_password" required placeholder="Repeat new password">
-            </div>
-            <div class="settings-form-footer">
-                <button type="submit" class="btn-primary" :disabled="loading">
-                    <span x-show="!loading">Update Password</span>
-                    <span x-show="loading" style="display:none;">Updating…</span>
+
+            <div class="theme-row">
+                <div class="theme-row-info">
+                    <div class="theme-label">Dark Mode</div>
+                    <div class="theme-sublabel">Black background with indigo glow</div>
+                </div>
+                <button class="theme-toggle"
+                        :class="{ active: $store.theme.dark }"
+                        @click="$store.theme.toggle()"
+                        aria-label="Toggle dark mode">
+                    <span class="toggle-track"><span class="toggle-thumb"></span></span>
                 </button>
             </div>
-        </form>
+
+            <div class="theme-preview">
+                <div class="preview-swatch preview-bg"></div>
+                <div class="preview-swatch preview-surface"></div>
+                <div class="preview-swatch preview-accent"></div>
+                <span class="preview-label" x-text="$store.theme.dark ? 'Dark — Black &amp; Indigo' : 'Default theme'"></span>
+            </div>
+        </section>
+
     </div>
-
-    <!-- ── Appearance ── -->
-    <div class="settings-card animate-in" style="animation-delay:0.1s">
-        <div class="settings-card-header">
-            <div class="settings-card-icon">
-                <i data-lucide="palette"></i>
-            </div>
-            <div>
-                <div class="settings-card-title">Appearance</div>
-                <div class="settings-card-desc">Customise how MyLife looks</div>
-            </div>
-        </div>
-
-        <div class="theme-row">
-            <div class="theme-row-info">
-                <div class="theme-label">Dark Mode</div>
-                <div class="theme-sublabel">Black background with purple glow</div>
-            </div>
-            <button class="theme-toggle"
-                    :class="{ active: $store.theme.dark }"
-                    @click="$store.theme.toggle()"
-                    aria-label="Toggle dark mode">
-                <span class="toggle-track"><span class="toggle-thumb"></span></span>
-            </button>
-        </div>
-
-        <div class="theme-preview">
-            <div class="preview-dot preview-bg"></div>
-            <div class="preview-dot preview-surface"></div>
-            <div class="preview-dot preview-accent"></div>
-            <span class="preview-label" x-text="$store.theme.dark ? 'Dark — Black &amp; Purple' : 'Default theme'"></span>
-        </div>
-    </div>
-
 </div>
 {% endblock %}

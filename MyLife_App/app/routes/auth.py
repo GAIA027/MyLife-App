@@ -95,6 +95,42 @@ def login_submit(
     return response
 
 
+@auth_router.get("/forgot-password", response_class=HTMLResponse)
+def forgot_password_page(request: Request):
+    return templates.TemplateResponse(
+        "auth/forgot_password.html",
+        {"request": request, "error": None, "success": None},
+    )
+
+
+@auth_router.post("/forgot-password", response_class=HTMLResponse)
+def forgot_password_submit(
+    request: Request,
+    email_or_username: str = Form(...),
+    new_password: str = Form(...),
+    confirm_password: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    if new_password != confirm_password:
+        return templates.TemplateResponse(
+            "auth/forgot_password.html",
+            {"request": request, "error": "Passwords do not match.", "success": None},
+            status_code=400,
+        )
+    try:
+        UserAccountService(db).reset_password(email_or_username, new_password)
+    except ValueError as exc:
+        return templates.TemplateResponse(
+            "auth/forgot_password.html",
+            {"request": request, "error": str(exc), "success": None},
+            status_code=400,
+        )
+    return templates.TemplateResponse(
+        "auth/forgot_password.html",
+        {"request": request, "error": None, "success": "Password reset! You can now sign in."},
+    )
+
+
 @auth_router.get("/logout")
 def logout():
     response = RedirectResponse(

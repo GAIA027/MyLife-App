@@ -42,10 +42,18 @@
             <textarea name="task_description" rows="3" placeholder="Brief description…">{{ task.task_description if task else '' }}</textarea>
         </div>
 
-        <div class="field">
-            <label>Deadline</label>
-            <input type="text" name="task_deadline" placeholder="YYYY-MM-DD"
-                   value="{{ task.task_deadline if task else '' }}" required>
+        <div x-data="{ hasDeadline: {{ 'true' if task and task.task_deadline else 'false' }} }">
+            <div class="field field-checkbox">
+                <label class="checkbox-label">
+                    <input type="checkbox" x-model="hasDeadline">
+                    Set a deadline
+                </label>
+            </div>
+            <div class="field" x-show="hasDeadline" x-transition style="display:none;">
+                <label>Deadline</label>
+                <input type="date" name="task_deadline"
+                       value="{{ task.task_deadline if task else '' }}">
+            </div>
         </div>
 
         <div class="field">

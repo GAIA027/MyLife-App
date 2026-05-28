@@ -225,6 +225,27 @@ html[data-theme="dark"] .right .dark-img  { display: block; }
     transform: none;
 }
 
+/* ── PASSWORD VISIBILITY ── */
+.pw-wrap { position: relative; }
+.pw-wrap input { padding-right: 44px !important; width: 100%; }
+.pw-eye {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer;
+    color: var(--text3); padding: 4px;
+    display: flex; align-items: center; justify-content: center;
+    transition: color 0.2s;
+}
+.pw-eye:hover { color: var(--accent); }
+.pw-eye svg { width: 16px; height: 16px; }
+
+/* ── FORGOT PASSWORD ── */
+.forgot-row { text-align: right; margin-top: -6px; margin-bottom: 2px; }
+.forgot-link {
+    font-size: 12px; color: var(--text3);
+    text-decoration: none; transition: color 0.2s;
+}
+.forgot-link:hover { color: var(--accent2); }
+
 @media (max-width: 700px) {
     .container { flex-direction: column; height: auto; }
     .left { width: 100%; padding: 40px 28px; }

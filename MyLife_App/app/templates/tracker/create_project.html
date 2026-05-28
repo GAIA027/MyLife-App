@@ -38,10 +38,18 @@
                    value="{{ project.project_duration if project else '' }}" required>
         </div>
 
-        <div class="field">
-            <label>Deadline</label>
-            <input type="text" name="project_deadline" placeholder="YYYY-MM-DD"
-                   value="{{ project.project_deadline if project else '' }}" required>
+        <div x-data="{ hasDeadline: {{ 'true' if project and project.project_deadline else 'false' }} }">
+            <div class="field field-checkbox">
+                <label class="checkbox-label">
+                    <input type="checkbox" x-model="hasDeadline">
+                    Set a deadline
+                </label>
+            </div>
+            <div class="field" x-show="hasDeadline" x-transition style="display:none;">
+                <label>Deadline</label>
+                <input type="date" name="project_deadline"
+                       value="{{ project.project_deadline if project else '' }}">
+            </div>
         </div>
 
         <div class="field">
