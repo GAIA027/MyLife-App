@@ -77,14 +77,14 @@
             {% endfor %}
         </div>
         {% else %}
-        <div class="empty-state"><div class="empty-icon">🔁</div><p>No frequency data.</p></div>
+        <div class="empty-state"><div class="empty-icon"><i data-lucide="repeat"></i></div><p>No frequency data.</p></div>
         {% endif %}
     </div>
 </div>
 
 {% else %}
 <div class="empty-state">
-    <div class="empty-icon">🔁</div>
+    <div class="empty-icon"><i data-lucide="repeat"></i></div>
     <h2>No habit data yet</h2>
     <p>Create habits and mark them as done to see your analytics.</p>
     <a href="/tracker/habits" class="btn-primary">Create Habit</a>

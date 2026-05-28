@@ -4,26 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Create your MyLife account">
+
     <script>if(localStorage.getItem('mylife-theme')==='dark'){document.documentElement.setAttribute('data-theme','dark');}</script>
+
+    <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('theme', {
+            dark: localStorage.getItem('mylife-theme') === 'dark',
+            toggle() {
+                this.dark = !this.dark;
+                localStorage.setItem('mylife-theme', this.dark ? 'dark' : 'light');
+                if (this.dark) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                }
+            }
+        });
+    });
+    </script>
+
+    <script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+    <link rel="stylesheet" href="/static/css/styles.css">
     <link rel="stylesheet" href="/static/css/auth/signup.css">
     <title>MyLife — Sign Up</title>
 </head>
 
-<body>
+<body x-data>
 
   <div class="container">
     <div class="left">
+
       <div class="brand-logo">
-        <span class="brand-mark">🌿</span>
+        <div class="auth-brand-mark">
+            <i data-lucide="sprout" style="width:20px;height:20px;color:#fff;"></i>
+        </div>
         <span class="brand-name">MyLife</span>
       </div>
 
       <div class="theme-row">
         <span class="theme-label">Dark Mode</span>
-        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+        <button class="theme-toggle"
+                :class="{ active: $store.theme.dark }"
+                @click="$store.theme.toggle()"
+                aria-label="Toggle dark mode">
           <span class="toggle-track"><span class="toggle-thumb"></span></span>
         </button>
       </div>
+
       <a href="/" class="back-home">← Back to Home</a>
 
       <h1 class="title">Create Account</h1>
@@ -39,7 +69,9 @@
         Already have an account? <a href="/auth/login">Sign in here</a>
       </p>
 
-      <form action="/auth/signup" method="post">
+      <form action="/auth/signup" method="post"
+            x-data="{ loading: false }"
+            @submit="loading = true">
 
         <div class="name-row">
           <div class="field">
@@ -62,7 +94,11 @@
           <input type="password" name="password" placeholder="Password" required>
         </div>
 
-        <button type="submit" class="submit-btn">Create Account</button>
+        <button type="submit" class="submit-btn" :disabled="loading">
+          <span x-show="!loading">Create Account</span>
+          <span x-show="loading" style="display:none;">Creating account…</span>
+        </button>
+
       </form>
     </div>
 
@@ -70,31 +106,8 @@
       <img src="/static/images/Login:signuppagephoto.webp" class="light-img" alt="">
       <img src="/static/images/Dark mode login:signup photo.webp" class="dark-img" alt="">
     </div>
-
   </div>
 
-<script>
-(function () {
-    const toggle = document.getElementById('themeToggle');
-
-    function applyTheme(theme) {
-        if (theme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-        } else {
-            document.documentElement.removeAttribute('data-theme');
-        }
-        localStorage.setItem('mylife-theme', theme);
-        toggle.classList.toggle('active', theme === 'dark');
-    }
-
-    const saved = localStorage.getItem('mylife-theme') || 'light';
-    applyTheme(saved);
-
-    toggle.addEventListener('click', function () {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        applyTheme(isDark ? 'light' : 'dark');
-    });
-}());
-</script>
+<script>lucide.createIcons();</script>
 </body>
 </html>

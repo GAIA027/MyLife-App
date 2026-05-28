@@ -4,9 +4,9 @@
 {% block page_css %}<link rel="stylesheet" href="/static/css/main-dashboard/dashboard.css">{% endblock %}
 
 {% block content %}
-<div class="page-header">
+<div class="page-header animate-in">
     <div class="page-header-left">
-        <h1>Good day, {{ current_user.first_name }} 🌿</h1>
+        <h1>Good day, {{ current_user.first_name }} 👋</h1>
         <p class="page-subtitle">Here's your life at a glance — {{ dashboard.today }}</p>
     </div>
     <div class="page-header-actions">
@@ -20,22 +20,22 @@
 
 <!-- STATS ROW -->
 <div class="stats-row">
-    <div class="stat-card" data-color="accent">
+    <div class="stat-card animate-in" data-color="accent" style="animation-delay:0.05s;">
         <div class="stat-label">Tasks</div>
         <div class="stat-value">{{ dashboard.tracker.tasks.total | default(0) }}</div>
         <div class="stat-sub">{{ dashboard.tracker.tasks.completed | default(0) }} completed</div>
     </div>
-    <div class="stat-card" data-color="success">
+    <div class="stat-card animate-in" data-color="success" style="animation-delay:0.08s;">
         <div class="stat-label">Habits</div>
         <div class="stat-value">{{ dashboard.tracker.habits.total | default(0) }}</div>
         <div class="stat-sub">{{ dashboard.tracker.habits.done_today | default(0) }} done today</div>
     </div>
-    <div class="stat-card" data-color="info">
+    <div class="stat-card animate-in" data-color="info" style="animation-delay:0.11s;">
         <div class="stat-label">Projects</div>
         <div class="stat-value">{{ dashboard.tracker.projects.total | default(0) }}</div>
         <div class="stat-sub">{{ dashboard.tracker.projects.in_progress | default(0) }} in progress</div>
     </div>
-    <div class="stat-card" data-color="warning">
+    <div class="stat-card animate-in" data-color="warning" style="animation-delay:0.14s;">
         <div class="stat-label">Balance</div>
         <div class="stat-value">{{ dashboard.finance.balance | default('—') }}</div>
         <div class="stat-sub">Net overall</div>
@@ -46,9 +46,11 @@
 <div class="dash-grid">
 
     <!-- Tracker card -->
-    <div class="card dash-card">
+    <div class="card dash-card animate-in" style="animation-delay:0.1s;">
         <div class="card-header">
-            <span class="card-title">✅ Tracker</span>
+            <span class="card-title">
+                <i data-lucide="check-square"></i> Tracker
+            </span>
             <a href="/tracker/dashboard" class="btn-ghost btn-sm">View All</a>
         </div>
         <div class="dash-card-body">
@@ -70,7 +72,10 @@
                 {% for habit in dashboard.habits[:3] %}
                 <li class="item-row">
                     <span class="item-name">{{ habit.habit_name }}</span>
-                    <span class="text-muted" style="font-size:12px;">🔥 {{ habit.streak }} day streak</span>
+                    <span class="text-muted" style="font-size:12px;display:flex;align-items:center;gap:4px;">
+                        <i data-lucide="flame" style="width:12px;height:12px;color:var(--warning);"></i>
+                        {{ habit.streak }} day streak
+                    </span>
                 </li>
                 {% endfor %}
             </ul>
@@ -90,7 +95,7 @@
 
             {% if not dashboard.tasks and not dashboard.habits and not dashboard.projects %}
             <div class="empty-state">
-                <div class="empty-icon">✅</div>
+                <div class="empty-icon"><i data-lucide="check-square"></i></div>
                 <p>Nothing tracked yet.</p>
                 <a href="/tracker/dashboard" class="btn-primary btn-sm">Go to Tracker</a>
             </div>
@@ -99,9 +104,11 @@
     </div>
 
     <!-- Finance card -->
-    <div class="card dash-card">
+    <div class="card dash-card animate-in" style="animation-delay:0.13s;">
         <div class="card-header">
-            <span class="card-title">💰 Finance</span>
+            <span class="card-title">
+                <i data-lucide="wallet"></i> Finance
+            </span>
             <a href="/finance/dashboard" class="btn-ghost btn-sm">View All</a>
         </div>
         <div class="dash-card-body">
@@ -122,7 +129,7 @@
             </ul>
             {% else %}
             <div class="empty-state">
-                <div class="empty-icon">💰</div>
+                <div class="empty-icon"><i data-lucide="wallet"></i></div>
                 <p>No accounts yet.</p>
                 <a href="/finance/accounts" class="btn-primary btn-sm">Create Account</a>
             </div>
@@ -131,9 +138,11 @@
     </div>
 
     <!-- Fitness card -->
-    <div class="card dash-card">
+    <div class="card dash-card animate-in" style="animation-delay:0.16s;">
         <div class="card-header">
-            <span class="card-title">🏃 Fitness</span>
+            <span class="card-title">
+                <i data-lucide="dumbbell"></i> Fitness
+            </span>
             <a href="/fitness/dashboard" class="btn-ghost btn-sm">View All</a>
         </div>
         <div class="dash-card-body">
@@ -156,8 +165,8 @@
             </div>
             {% if dashboard.fitness.daily_goal and dashboard.fitness.daily_goal > 0 %}
             {% set pct = [(dashboard.fitness.consumed_today / dashboard.fitness.daily_goal * 100) | int, 100] | min %}
-            <div style="height:6px;border-radius:3px;background:var(--surface2);margin-bottom:10px;overflow:hidden;">
-                <div style="height:100%;width:{{ pct }}%;background:{% if pct >= 100 %}var(--danger){% else %}var(--accent){% endif %};border-radius:3px;transition:width .3s;"></div>
+            <div class="progress-bar" style="margin-bottom:10px;">
+                <div class="progress-fill" style="width:{{ pct }}%;background:{% if pct >= 100 %}var(--danger){% else %}var(--accent){% endif %};"></div>
             </div>
             {% endif %}
             <ul class="item-list">
@@ -173,7 +182,7 @@
             </div>
             {% else %}
             <div class="empty-state">
-                <div class="empty-icon">🏃</div>
+                <div class="empty-icon"><i data-lucide="dumbbell"></i></div>
                 <p>No meals logged today.</p>
                 <a href="/fitness/meals" class="btn-primary btn-sm">Log Meal</a>
             </div>
@@ -182,9 +191,11 @@
     </div>
 
     <!-- Calendar card -->
-    <div class="card dash-card">
+    <div class="card dash-card animate-in" style="animation-delay:0.19s;">
         <div class="card-header">
-            <span class="card-title">📅 Calendar</span>
+            <span class="card-title">
+                <i data-lucide="calendar"></i> Calendar
+            </span>
             <a href="/calendar/dashboard" class="btn-ghost btn-sm">View All</a>
         </div>
         <div class="dash-card-body">
@@ -199,7 +210,7 @@
             </ul>
             {% else %}
             <div class="empty-state">
-                <div class="empty-icon">📅</div>
+                <div class="empty-icon"><i data-lucide="calendar"></i></div>
                 <p>No upcoming events.</p>
                 <a href="/calendar/events" class="btn-primary btn-sm">Add Event</a>
             </div>
@@ -208,9 +219,11 @@
     </div>
 
     <!-- Scheduler card — spans full width -->
-    <div class="card dash-card dash-card-wide">
+    <div class="card dash-card dash-card-wide animate-in" style="animation-delay:0.22s;">
         <div class="card-header">
-            <span class="card-title">🗓 Scheduler</span>
+            <span class="card-title">
+                <i data-lucide="clock"></i> Scheduler
+            </span>
             <a href="/scheduler/dashboard" class="btn-ghost btn-sm">View All</a>
         </div>
         <div class="dash-card-body">
@@ -229,7 +242,7 @@
             </ul>
             {% else %}
             <div class="empty-state">
-                <div class="empty-icon">🗓</div>
+                <div class="empty-icon"><i data-lucide="clock"></i></div>
                 <p>No schedules yet.</p>
                 <a href="/scheduler/new" class="btn-primary btn-sm">Create Schedule</a>
             </div>

@@ -60,7 +60,7 @@
             </tbody>
         </table>
         {% else %}
-        <div class="empty-state"><div class="empty-icon">💰</div><p>No category data yet.</p></div>
+        <div class="empty-state"><div class="empty-icon"><i data-lucide="wallet"></i></div><p>No category data yet.</p></div>
         {% endif %}
     </div>
     <div class="card">
@@ -88,7 +88,7 @@
 
 {% else %}
 <div class="empty-state">
-    <div class="empty-icon">💰</div>
+    <div class="empty-icon"><i data-lucide="wallet"></i></div>
     <h2>No finance data yet</h2>
     <p>Log transactions to start seeing financial analytics.</p>
     <a href="/finance/create-transaction" class="btn-primary">Add Transaction</a>

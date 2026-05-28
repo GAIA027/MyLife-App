@@ -1,21 +1,46 @@
 <!DOCTYPE html>
-<html lang="en" id="html-root">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MyLife — Live Intentionally</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- No-flash theme -->
+    <script>if(localStorage.getItem('mylife-theme')==='dark'){document.documentElement.setAttribute('data-theme','dark');}</script>
+
+    <!-- Alpine.js store init -->
+    <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('theme', {
+            dark: localStorage.getItem('mylife-theme') === 'dark',
+            toggle() {
+                this.dark = !this.dark;
+                localStorage.setItem('mylife-theme', this.dark ? 'dark' : 'light');
+                if (this.dark) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                }
+            }
+        });
+    });
+    </script>
+
+    <script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
     <link rel="stylesheet" href="/static/css/styles.css">
     <link rel="stylesheet" href="/static/css/home/MyLife_Home.css">
-    <script>if(localStorage.getItem('mylife-theme')==='dark'){document.documentElement.setAttribute('data-theme','dark');}</script>
 </head>
-<body>
+
+<body x-data>
 
 <!-- NAV -->
 <nav class="home-nav">
     <div class="nav-brand">
-        <div class="nav-brand-mark">🌿</div>
+        <div class="nav-brand-mark">
+            <i data-lucide="sprout" style="width:17px;height:17px;color:#fff;"></i>
+        </div>
         <span class="nav-brand-name">MyLife</span>
     </div>
     <div class="nav-links">
@@ -29,7 +54,10 @@
         {% endif %}
         <div class="theme-row">
             <span class="theme-nav-label">Dark Mode</span>
-            <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+            <button class="theme-toggle"
+                    :class="{ active: $store.theme.dark }"
+                    @click="$store.theme.toggle()"
+                    aria-label="Toggle dark mode">
                 <span class="toggle-track"><span class="toggle-thumb"></span></span>
             </button>
         </div>
@@ -38,7 +66,7 @@
 
 <!-- HERO -->
 <section class="hero">
-    <div class="hero-content">
+    <div class="hero-content animate-in">
         <div class="hero-badge">Your personal life OS</div>
         <h1 class="hero-title">Live with<br><span class="hero-accent">intention</span></h1>
         <p class="hero-subtitle">
@@ -58,7 +86,7 @@
         <p class="hero-greeting">Welcome back, {{ current_user.first_name }} 👋</p>
         {% endif %}
     </div>
-    <div class="hero-visual">
+    <div class="hero-visual animate-in" style="animation-delay:0.1s;">
         <div class="dashboard-mock">
             <div class="mock-sidebar">
                 <div class="mock-item active"></div>
@@ -87,45 +115,45 @@
 <section class="modules-strip">
     <div class="strip-label">Everything in one place</div>
     <div class="modules-row">
-        <div class="module-chip">✅ Tasks</div>
-        <div class="module-chip">💰 Finance</div>
-        <div class="module-chip">🏃 Fitness</div>
-        <div class="module-chip">📅 Calendar</div>
-        <div class="module-chip">📊 Statistics</div>
-        <div class="module-chip">💰 Budgets</div>
-        <div class="module-chip">🗓 Scheduler</div>
+        <div class="module-chip"><i data-lucide="check-square"></i> Tasks</div>
+        <div class="module-chip"><i data-lucide="wallet"></i> Finance</div>
+        <div class="module-chip"><i data-lucide="dumbbell"></i> Fitness</div>
+        <div class="module-chip"><i data-lucide="calendar"></i> Calendar</div>
+        <div class="module-chip"><i data-lucide="bar-chart-2"></i> Statistics</div>
+        <div class="module-chip"><i data-lucide="piggy-bank"></i> Budgets</div>
+        <div class="module-chip"><i data-lucide="clock"></i> Scheduler</div>
     </div>
 </section>
 
 <!-- FEATURES -->
 <section class="features">
-    <div class="features-header">
+    <div class="features-header animate-in">
         <h2>Built for real life</h2>
         <p>Not a generic to-do app. A system that adapts to how you actually live.</p>
     </div>
     <div class="features-grid">
-        <div class="feature-card">
-            <div class="feature-icon">✅</div>
+        <div class="feature-card animate-in" style="animation-delay:0.05s;">
+            <div class="feature-icon"><i data-lucide="check-square"></i></div>
             <h3>Task Tracker</h3>
             <p>Manage tasks, habits, and projects with deadlines, priorities, and recurring schedules.</p>
         </div>
-        <div class="feature-card">
-            <div class="feature-icon">💰</div>
+        <div class="feature-card animate-in" style="animation-delay:0.1s;">
+            <div class="feature-icon"><i data-lucide="wallet"></i></div>
             <h3>Finance</h3>
             <p>Track income and expenses, set budgets, monitor accounts — all in one view.</p>
         </div>
-        <div class="feature-card">
-            <div class="feature-icon">🏃</div>
+        <div class="feature-card animate-in" style="animation-delay:0.15s;">
+            <div class="feature-icon"><i data-lucide="dumbbell"></i></div>
             <h3>Fitness</h3>
             <p>Log workouts, build meal plans, set calorie goals, and track your routines.</p>
         </div>
-        <div class="feature-card">
-            <div class="feature-icon">📅</div>
+        <div class="feature-card animate-in" style="animation-delay:0.2s;">
+            <div class="feature-icon"><i data-lucide="calendar"></i></div>
             <h3>Calendar</h3>
             <p>Visualise your schedule, log events, and never lose track of what's coming up.</p>
         </div>
-        <div class="feature-card">
-            <div class="feature-icon">🗓</div>
+        <div class="feature-card animate-in" style="animation-delay:0.25s;">
+            <div class="feature-icon"><i data-lucide="clock"></i></div>
             <h3>Scheduler</h3>
             <p>Build named schedules and fill them with timed activities — your day, structured your way.</p>
         </div>
@@ -142,14 +170,16 @@
     <h2>Ready to take control?</h2>
     <p>Create your free account and start building your life system today.</p>
     <a href="/auth/signup" class="btn-hero-primary">Start for Free</a>
-    <a href="/auth/login" class="btn-hero-ghost" style="margin-left:12px">Sign In</a>
+    <a href="/auth/login" class="btn-hero-ghost" style="margin-left:12px;">Sign In</a>
     {% endif %}
 </section>
 
 <!-- FOOTER -->
 <footer class="home-footer">
     <div class="footer-brand">
-        <span class="nav-brand-mark">🌿</span>
+        <div class="nav-brand-mark" style="width:28px;height:28px;border-radius:7px;">
+            <i data-lucide="sprout" style="width:14px;height:14px;color:#fff;"></i>
+        </div>
         <span>MyLife</span>
     </div>
     <div class="footer-links">
@@ -165,28 +195,6 @@
     <p class="footer-copy">© 2025 MyLife. Built with intention.</p>
 </footer>
 
-<script>
-(function () {
-    const toggle = document.getElementById('themeToggle');
-
-    function applyTheme(theme) {
-        if (theme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-        } else {
-            document.documentElement.removeAttribute('data-theme');
-        }
-        localStorage.setItem('mylife-theme', theme);
-        toggle.classList.toggle('active', theme === 'dark');
-    }
-
-    const saved = localStorage.getItem('mylife-theme') || 'light';
-    applyTheme(saved);
-
-    toggle.addEventListener('click', function () {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        applyTheme(isDark ? 'light' : 'dark');
-    });
-}());
-</script>
+<script>lucide.createIcons();</script>
 </body>
 </html>

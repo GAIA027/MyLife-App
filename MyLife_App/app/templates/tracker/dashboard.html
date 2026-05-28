@@ -4,7 +4,7 @@
 {% block page_css %}<link rel="stylesheet" href="/static/css/tracker/dashboard.css">{% endblock %}
 
 {% block content %}
-<div class="page-header">
+<div class="page-header animate-in">
     <div class="page-header-left">
         <h1>Tracker</h1>
         <p class="page-subtitle">Tasks, habits, and projects — all in one place</p>
@@ -43,9 +43,9 @@
 <div class="grid-3" style="margin-top: 28px;">
 
     <!-- TASKS -->
-    <div class="card">
+    <div class="card animate-in" style="animation-delay:0.05s;">
         <div class="card-header">
-            <span class="card-title">✅ Tasks</span>
+            <span class="card-title"><i data-lucide="check-square"></i> Tasks</span>
             <a href="/tracker/tasks/list" class="btn-ghost btn-sm">View All</a>
         </div>
         {% if tasks %}
@@ -59,7 +59,7 @@
         </ul>
         {% else %}
         <div class="empty-state">
-            <div class="empty-icon">✅</div>
+            <div class="empty-icon"><i data-lucide="check-square"></i></div>
             <p>No tasks yet.</p>
             <a href="/tracker/tasks" class="btn-primary btn-sm">Create Task</a>
         </div>
@@ -67,9 +67,9 @@
     </div>
 
     <!-- HABITS -->
-    <div class="card">
+    <div class="card animate-in" style="animation-delay:0.1s;">
         <div class="card-header">
-            <span class="card-title">🔁 Habits</span>
+            <span class="card-title"><i data-lucide="repeat"></i> Habits</span>
             <a href="/tracker/habits/list" class="btn-ghost btn-sm">View All</a>
         </div>
         {% if habits %}
@@ -83,7 +83,7 @@
         </ul>
         {% else %}
         <div class="empty-state">
-            <div class="empty-icon">🔁</div>
+            <div class="empty-icon"><i data-lucide="repeat"></i></div>
             <p>No habits yet.</p>
             <a href="/tracker/habits" class="btn-primary btn-sm">Create Habit</a>
         </div>
@@ -91,9 +91,9 @@
     </div>
 
     <!-- PROJECTS -->
-    <div class="card">
+    <div class="card animate-in" style="animation-delay:0.15s;">
         <div class="card-header">
-            <span class="card-title">📁 Projects</span>
+            <span class="card-title"><i data-lucide="folder"></i> Projects</span>
             <a href="/tracker/projects/list" class="btn-ghost btn-sm">View All</a>
         </div>
         {% if projects %}
@@ -107,7 +107,7 @@
         </ul>
         {% else %}
         <div class="empty-state">
-            <div class="empty-icon">📁</div>
+            <div class="empty-icon"><i data-lucide="folder"></i></div>
             <p>No projects yet.</p>
             <a href="/tracker/projects" class="btn-primary btn-sm">Create Project</a>
         </div>
@@ -117,7 +117,11 @@
 </div>
 
 <div class="tracker-actions">
-    <a href="/tracker/search" class="btn-ghost btn-sm">🔍 Search</a>
-    <a href="/tracker/archive" class="btn-ghost btn-sm">🗂 Archive</a>
+    <a href="/tracker/search" class="btn-ghost btn-sm">
+        <i data-lucide="search" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Search
+    </a>
+    <a href="/tracker/archive" class="btn-ghost btn-sm">
+        <i data-lucide="archive" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Archive
+    </a>
 </div>
 {% endblock %}

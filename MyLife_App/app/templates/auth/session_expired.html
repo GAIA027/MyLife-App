@@ -4,20 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>if(localStorage.getItem('mylife-theme')==='dark'){document.documentElement.setAttribute('data-theme','dark');}</script>
+
+    <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('theme', {
+            dark: localStorage.getItem('mylife-theme') === 'dark',
+            toggle() {
+                this.dark = !this.dark;
+                localStorage.setItem('mylife-theme', this.dark ? 'dark' : 'light');
+                if (this.dark) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                }
+            }
+        });
+    });
+    </script>
+
+    <script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/css/styles.css">
     <link rel="stylesheet" href="/static/css/auth/session_expired.css">
     <title>MyLife — Session Expired</title>
 </head>
-<body>
+<body x-data>
 
 <div class="page">
+    <div class="exp-card">
 
-    <div class="card">
         <div class="brand">
-            <span class="brand-mark">🌿</span>
+            <div class="auth-brand-mark"><i data-lucide="sprout"></i></div>
             <span class="brand-name">MyLife</span>
         </div>
 
-        <div class="icon">🔒</div>
+        <div class="exp-icon">
+            <i data-lucide="lock"></i>
+        </div>
 
         <h1 class="title">Session Expired</h1>
         <p class="subtitle">Your session has timed out or you are not signed in.<br>Please log in again to continue.</p>
@@ -29,36 +57,17 @@
 
         <div class="theme-row">
             <span class="theme-label">Dark Mode</span>
-            <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+            <button class="theme-toggle"
+                    :class="{ active: $store.theme.dark }"
+                    @click="$store.theme.toggle()"
+                    aria-label="Toggle dark mode">
                 <span class="toggle-track"><span class="toggle-thumb"></span></span>
             </button>
         </div>
-    </div>
 
+    </div>
 </div>
 
-<script>
-(function () {
-    const toggle = document.getElementById('themeToggle');
-
-    function applyTheme(theme) {
-        if (theme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-        } else {
-            document.documentElement.removeAttribute('data-theme');
-        }
-        localStorage.setItem('mylife-theme', theme);
-        toggle.classList.toggle('active', theme === 'dark');
-    }
-
-    const saved = localStorage.getItem('mylife-theme') || 'light';
-    applyTheme(saved);
-
-    toggle.addEventListener('click', function () {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        applyTheme(isDark ? 'light' : 'dark');
-    });
-}());
-</script>
+<script>lucide.createIcons();</script>
 </body>
 </html>

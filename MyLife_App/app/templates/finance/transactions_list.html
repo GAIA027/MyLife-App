@@ -10,8 +10,8 @@
         <p class="page-subtitle">{{ transactions | length }} transaction{{ 's' if transactions | length != 1 else '' }}</p>
     </div>
     <div class="page-header-actions">
-        <a href="/finance/transactions/income" class="btn-ghost btn-sm">💚 Income</a>
-        <a href="/finance/transactions/expense" class="btn-ghost btn-sm">🔴 Expenses</a>
+        <a href="/finance/transactions/income" class="btn-ghost btn-sm"><i data-lucide="trending-up" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;color:var(--success);"></i>Income</a>
+        <a href="/finance/transactions/expense" class="btn-ghost btn-sm"><i data-lucide="trending-down" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;color:var(--danger);"></i>Expenses</a>
         <a href="/finance/transactions" class="btn-primary btn-sm">+ Add</a>
     </div>
 </div>
@@ -57,7 +57,7 @@
 </div>
 {% else %}
 <div class="empty-state">
-    <div class="empty-icon">🧾</div>
+    <div class="empty-icon"><i data-lucide="receipt"></i></div>
     <h2>No transactions yet</h2>
     <p>Start recording your income and expenses.</p>
     <a href="/finance/transactions" class="btn-primary">Add Transaction</a>

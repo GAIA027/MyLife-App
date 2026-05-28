@@ -4,7 +4,7 @@
 {% block page_css %}<link rel="stylesheet" href="/static/css/settings/index.css">{% endblock %}
 
 {% block content %}
-<div class="page-header">
+<div class="page-header animate-in">
     <div class="page-header-left">
         <h1>Settings</h1>
         <p class="page-subtitle">Manage your account and preferences</p>
@@ -14,9 +14,11 @@
 <div class="settings-grid">
 
     <!-- ── Change Password ── -->
-    <div class="settings-card">
+    <div class="settings-card animate-in" style="animation-delay:0.05s">
         <div class="settings-card-header">
-            <div class="settings-card-icon">🔒</div>
+            <div class="settings-card-icon">
+                <i data-lucide="lock"></i>
+            </div>
             <div>
                 <div class="settings-card-title">Change Password</div>
                 <div class="settings-card-desc">Update your account password</div>
@@ -24,13 +26,14 @@
         </div>
 
         {% if success %}
-        <div class="alert-success">✓ {{ success }}</div>
+        <div class="alert-success">&#10003; {{ success }}</div>
         {% endif %}
         {% if error %}
-        <div class="alert-error">⚠ {{ error }}</div>
+        <div class="alert-error">&#9888; {{ error }}</div>
         {% endif %}
 
-        <form action="/settings/change-password" method="post" class="settings-form">
+        <form action="/settings/change-password" method="post" class="settings-form"
+              x-data="{ loading: false }" @submit="loading = true">
             <div class="field">
                 <label>Current Password</label>
                 <input type="password" name="current_password" required placeholder="Enter current password">
@@ -44,15 +47,20 @@
                 <input type="password" name="confirm_password" required placeholder="Repeat new password">
             </div>
             <div class="settings-form-footer">
-                <button type="submit" class="btn-primary">Update Password</button>
+                <button type="submit" class="btn-primary" :disabled="loading">
+                    <span x-show="!loading">Update Password</span>
+                    <span x-show="loading" style="display:none;">Updating…</span>
+                </button>
             </div>
         </form>
     </div>
 
     <!-- ── Appearance ── -->
-    <div class="settings-card">
+    <div class="settings-card animate-in" style="animation-delay:0.1s">
         <div class="settings-card-header">
-            <div class="settings-card-icon">🎨</div>
+            <div class="settings-card-icon">
+                <i data-lucide="palette"></i>
+            </div>
             <div>
                 <div class="settings-card-title">Appearance</div>
                 <div class="settings-card-desc">Customise how MyLife looks</div>
@@ -64,47 +72,21 @@
                 <div class="theme-label">Dark Mode</div>
                 <div class="theme-sublabel">Black background with purple glow</div>
             </div>
-            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" onclick="toggleTheme()">
-                <span class="toggle-track">
-                    <span class="toggle-thumb"></span>
-                </span>
+            <button class="theme-toggle"
+                    :class="{ active: $store.theme.dark }"
+                    @click="$store.theme.toggle()"
+                    aria-label="Toggle dark mode">
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
             </button>
         </div>
 
-        <div class="theme-preview" id="theme-preview">
+        <div class="theme-preview">
             <div class="preview-dot preview-bg"></div>
             <div class="preview-dot preview-surface"></div>
             <div class="preview-dot preview-accent"></div>
-            <span class="preview-label" id="preview-label">Default theme</span>
+            <span class="preview-label" x-text="$store.theme.dark ? 'Dark — Black &amp; Purple' : 'Default theme'"></span>
         </div>
     </div>
 
 </div>
-
-<script>
-    const DARK_KEY = 'mylife-theme';
-
-    function toggleTheme() {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        const next = !isDark;
-        // Apply to DOM immediately
-        if (next) {
-            document.documentElement.setAttribute('data-theme', 'dark');
-        } else {
-            document.documentElement.removeAttribute('data-theme');
-        }
-        // Persist
-        localStorage.setItem(DARK_KEY, next ? 'dark' : 'light');
-        // Update toggle button
-        document.getElementById('theme-toggle').classList.toggle('active', next);
-        document.getElementById('preview-label').textContent = next ? 'Dark — Black & Purple' : 'Default theme';
-    }
-
-    // Sync toggle button to current state on page load
-    (function() {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        document.getElementById('theme-toggle').classList.toggle('active', isDark);
-        document.getElementById('preview-label').textContent = isDark ? 'Dark — Black & Purple' : 'Default theme';
-    })();
-</script>
 {% endblock %}

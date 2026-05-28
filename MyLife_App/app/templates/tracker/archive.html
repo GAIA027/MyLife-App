@@ -19,7 +19,7 @@
     {% if archive.tasks %}
     <div class="card" style="margin-bottom: 20px;">
         <div class="card-header">
-            <span class="card-title">✅ Archived Tasks</span>
+            <span class="card-title"><i data-lucide="check-square"></i> Archived Tasks</span>
             <span class="text-muted" style="font-size:13px">{{ archive.tasks | length }}</span>
         </div>
         <table class="data-table">
@@ -43,7 +43,7 @@
     {% if archive.habits %}
     <div class="card" style="margin-bottom: 20px;">
         <div class="card-header">
-            <span class="card-title">🔁 Archived Habits</span>
+            <span class="card-title"><i data-lucide="repeat"></i> Archived Habits</span>
             <span class="text-muted" style="font-size:13px">{{ archive.habits | length }}</span>
         </div>
         <table class="data-table">
@@ -66,7 +66,7 @@
     {% if archive.projects %}
     <div class="card">
         <div class="card-header">
-            <span class="card-title">📁 Archived Projects</span>
+            <span class="card-title"><i data-lucide="folder"></i> Archived Projects</span>
             <span class="text-muted" style="font-size:13px">{{ archive.projects | length }}</span>
         </div>
         <table class="data-table">
@@ -88,7 +88,7 @@
 
 {% else %}
 <div class="empty-state">
-    <div class="empty-icon">🗂</div>
+    <div class="empty-icon"><i data-lucide="archive"></i></div>
     <h2>Archive is empty</h2>
     <p>Complete or archive tasks, habits, and projects to see them here.</p>
     <a href="/tracker/dashboard" class="btn-ghost">Go to Tracker</a>

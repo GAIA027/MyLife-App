@@ -44,7 +44,7 @@
 <div class="grid-3" style="margin-top: 28px;">
     <div class="card">
         <div class="card-header">
-            <span class="card-title">📊 Statistics</span>
+            <span class="card-title"><i data-lucide="bar-chart-2"></i> Statistics</span>
             <a href="/statistics/dashboard" class="btn-ghost btn-sm">Explore</a>
         </div>
         {% if dashboard.statistics %}
@@ -55,13 +55,13 @@
             </div>
         </div>
         {% else %}
-        <div class="empty-state"><div class="empty-icon">📊</div><p>No statistics yet.</p></div>
+        <div class="empty-state"><div class="empty-icon"><i data-lucide="bar-chart-2"></i></div><p>No statistics yet.</p></div>
         {% endif %}
     </div>
 
     <div class="card">
         <div class="card-header">
-            <span class="card-title">🏃 Fitness</span>
+            <span class="card-title"><i data-lucide="dumbbell"></i> Fitness</span>
             <a href="/fitness/dashboard" class="btn-ghost btn-sm">View</a>
         </div>
         {% if dashboard.fitness %}
@@ -72,13 +72,13 @@
             </div>
         </div>
         {% else %}
-        <div class="empty-state"><div class="empty-icon">🏃</div><p>No fitness data.</p></div>
+        <div class="empty-state"><div class="empty-icon"><i data-lucide="dumbbell"></i></div><p>No fitness data.</p></div>
         {% endif %}
     </div>
 
     <div class="card">
         <div class="card-header">
-            <span class="card-title">📅 Calendar</span>
+            <span class="card-title"><i data-lucide="calendar"></i> Calendar</span>
             <a href="/calendar/dashboard" class="btn-ghost btn-sm">View</a>
         </div>
         {% if dashboard.calendar and dashboard.calendar.upcoming %}
@@ -91,7 +91,7 @@
             {% endfor %}
         </ul>
         {% else %}
-        <div class="empty-state"><div class="empty-icon">📅</div><p>No upcoming events.</p></div>
+        <div class="empty-state"><div class="empty-icon"><i data-lucide="calendar"></i></div><p>No upcoming events.</p></div>
         {% endif %}
     </div>
 </div>

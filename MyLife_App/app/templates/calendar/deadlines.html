@@ -23,7 +23,7 @@
     <!-- Task Deadlines -->
     <div class="card">
         <div class="card-header">
-            <span class="card-title">✅ Task Deadlines</span>
+            <span class="card-title"><i data-lucide="check-square"></i> Task Deadlines</span>
             <span class="text-muted" style="font-size:13px">{{ task_deadlines | length }}</span>
         </div>
         {% if task_deadlines %}
@@ -51,7 +51,7 @@
         </table>
         {% else %}
         <div class="empty-state">
-            <div class="empty-icon">✅</div>
+            <div class="empty-icon"><i data-lucide="check-square"></i></div>
             <p>No task deadlines coming up.</p>
         </div>
         {% endif %}
@@ -60,7 +60,7 @@
     <!-- Project Deadlines -->
     <div class="card">
         <div class="card-header">
-            <span class="card-title">📁 Project Deadlines</span>
+            <span class="card-title"><i data-lucide="folder"></i> Project Deadlines</span>
             <span class="text-muted" style="font-size:13px">{{ project_deadlines | length }}</span>
         </div>
         {% if project_deadlines %}
@@ -88,7 +88,7 @@
         </table>
         {% else %}
         <div class="empty-state">
-            <div class="empty-icon">📁</div>
+            <div class="empty-icon"><i data-lucide="folder"></i></div>
             <p>No project deadlines coming up.</p>
         </div>
         {% endif %}

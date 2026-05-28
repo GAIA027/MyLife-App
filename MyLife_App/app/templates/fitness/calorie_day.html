@@ -40,7 +40,7 @@
 {% if calorie_summary.meals %}
 <div class="card" style="margin-top:20px">
     <div class="card-header">
-        <span class="card-title">🍽 Meals on {{ target_date }}</span>
+        <span class="card-title"><i data-lucide="utensils"></i> Meals on {{ target_date }}</span>
     </div>
     <table class="data-table">
         <thead><tr><th>Meal</th><th>Type</th><th>Calories</th><th>Protein</th><th>Carbs</th><th>Fats</th></tr></thead>
@@ -62,7 +62,7 @@
 
 {% else %}
 <div class="empty-state">
-    <div class="empty-icon">🍽</div>
+    <div class="empty-icon"><i data-lucide="utensils"></i></div>
     <h2>No meals logged on {{ target_date }}</h2>
     <a href="/fitness/meals" class="btn-primary">Add Meal</a>
 </div>

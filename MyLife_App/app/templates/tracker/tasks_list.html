@@ -10,7 +10,7 @@
         <p class="page-subtitle">{{ tasks | length }} task{{ 's' if tasks | length != 1 else '' }}</p>
     </div>
     <div class="page-header-actions">
-        <a href="/tracker/search" class="btn-ghost btn-sm">🔍 Search</a>
+        <a href="/tracker/search" class="btn-ghost btn-sm"><i data-lucide="search" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Search</a>
         <a href="/tracker/tasks" class="btn-primary btn-sm">+ New Task</a>
     </div>
 </div>
@@ -65,7 +65,7 @@
 </div>
 {% else %}
 <div class="empty-state">
-    <div class="empty-icon">✅</div>
+    <div class="empty-icon"><i data-lucide="check-square"></i></div>
     <h2>No tasks yet</h2>
     <p>Create your first task to start tracking your work.</p>
     <a href="/tracker/tasks" class="btn-primary">Create Task</a>

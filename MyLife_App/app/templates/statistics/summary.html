@@ -23,7 +23,7 @@
 
     {% if summary.tracker %}
     <div class="card">
-        <div class="card-header"><span class="card-title">✅ Tracker Summary</span></div>
+        <div class="card-header"><span class="card-title"><i data-lucide="check-square"></i> Tracker Summary</span></div>
         <div class="stat-block-list">
             {% for key, val in summary.tracker.items() %}
             <div class="stat-block-row">
@@ -37,7 +37,7 @@
 
     {% if summary.finance %}
     <div class="card">
-        <div class="card-header"><span class="card-title">💰 Finance Summary</span></div>
+        <div class="card-header"><span class="card-title"><i data-lucide="wallet"></i> Finance Summary</span></div>
         <div class="stat-block-list">
             {% for key, val in summary.finance.items() %}
             <div class="stat-block-row">
@@ -51,7 +51,7 @@
 
     {% if summary.fitness %}
     <div class="card">
-        <div class="card-header"><span class="card-title">🏃 Fitness Summary</span></div>
+        <div class="card-header"><span class="card-title"><i data-lucide="dumbbell"></i> Fitness Summary</span></div>
         <div class="stat-block-list">
             {% for key, val in summary.fitness.items() %}
             <div class="stat-block-row">
@@ -65,7 +65,7 @@
 
     {% if summary.calendar %}
     <div class="card">
-        <div class="card-header"><span class="card-title">📅 Calendar Summary</span></div>
+        <div class="card-header"><span class="card-title"><i data-lucide="calendar"></i> Calendar Summary</span></div>
         <div class="stat-block-list">
             {% for key, val in summary.calendar.items() %}
             <div class="stat-block-row">
@@ -80,7 +80,7 @@
 </div>
 {% else %}
 <div class="empty-state">
-    <div class="empty-icon">📊</div>
+    <div class="empty-icon"><i data-lucide="bar-chart-2"></i></div>
     <h2>No summary data yet</h2>
     <p>Start using the app to generate your personal statistics.</p>
     <a href="/dashboard" class="btn-primary">Go to Dashboard</a>

@@ -21,7 +21,7 @@
     <!-- Calorie ring summary -->
     <div class="card fitness-calorie-card">
         <div class="card-header">
-            <span class="card-title">🔥 Today's Calories</span>
+            <span class="card-title"><i data-lucide="flame"></i> Today's Calories</span>
             <a href="/fitness/calories" class="btn-ghost btn-sm">Set Goal</a>
         </div>
         <div class="calorie-summary">
@@ -59,7 +59,7 @@
     <!-- Today's meals -->
     <div class="card">
         <div class="card-header">
-            <span class="card-title">🍽 Meals Today</span>
+            <span class="card-title"><i data-lucide="utensils"></i> Meals Today</span>
             <a href="/fitness/meals/list" class="btn-ghost btn-sm">All Meals</a>
         </div>
         {% if meals_today %}
@@ -79,7 +79,7 @@
         </div>
         {% else %}
         <div class="empty-state">
-            <div class="empty-icon">🍽</div>
+            <div class="empty-icon"><i data-lucide="utensils"></i></div>
             <p>No meals logged today.</p>
             <a href="/fitness/meals" class="btn-primary btn-sm">Log Meal</a>
         </div>
@@ -91,7 +91,7 @@
 <!-- TODAY'S WORKOUTS -->
 <div class="card" style="margin-top:20px;">
     <div class="card-header">
-        <span class="card-title">🏋️ Today's Workouts</span>
+        <span class="card-title"><i data-lucide="dumbbell"></i> Today's Workouts</span>
         <a href="/fitness/workouts/list" class="btn-ghost btn-sm">All Workouts</a>
     </div>
     {% if workouts_today %}
@@ -105,7 +105,7 @@
     </ul>
     {% else %}
     <div class="empty-state" style="padding:20px 0;">
-        <div class="empty-icon">🏋️</div>
+        <div class="empty-icon"><i data-lucide="dumbbell"></i></div>
         <p>No workouts logged today.</p>
         <a href="/fitness/workouts" class="btn-primary btn-sm">Log Workout</a>
     </div>
@@ -116,22 +116,22 @@
 <div class="grid-2" style="margin-top:20px;">
     <div class="card">
         <div class="card-header">
-            <span class="card-title">📋 Routines</span>
+            <span class="card-title"><i data-lucide="clipboard-list"></i> Routines</span>
             <a href="/fitness/routines/list" class="btn-ghost btn-sm">View All</a>
         </div>
         <div class="empty-state">
-            <div class="empty-icon">📋</div>
+            <div class="empty-icon"><i data-lucide="clipboard-list"></i></div>
             <p>Create workout routines to follow.</p>
             <a href="/fitness/routines" class="btn-primary btn-sm">Create Routine</a>
         </div>
     </div>
     <div class="card">
         <div class="card-header">
-            <span class="card-title">🥗 Meal Plans</span>
+            <span class="card-title"><i data-lucide="utensils"></i> Meal Plans</span>
             <a href="/fitness/meal-plans/list" class="btn-ghost btn-sm">View All</a>
         </div>
         <div class="empty-state">
-            <div class="empty-icon">🥗</div>
+            <div class="empty-icon"><i data-lucide="utensils"></i></div>
             <p>Build structured meal plans.</p>
             <a href="/fitness/meal-plans" class="btn-primary btn-sm">Create Plan</a>
         </div>

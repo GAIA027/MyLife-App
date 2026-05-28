@@ -19,7 +19,7 @@
     {% for s in schedules %}
     <div class="schedule-card">
         <div class="schedule-card-top">
-            <div class="schedule-icon">📅</div>
+            <div class="schedule-icon"><i data-lucide="calendar"></i></div>
             <div class="schedule-info">
                 <h3 class="schedule-name">{{ s.name }}</h3>
                 {% if s.description %}
@@ -40,7 +40,7 @@
 </div>
 {% else %}
 <div class="empty-state" style="margin-top:60px;">
-    <div class="empty-icon">📅</div>
+    <div class="empty-icon"><i data-lucide="clock"></i></div>
     <h2>No schedules yet</h2>
     <p>Create your first schedule to start organising your time.</p>
     <a href="/scheduler/new" class="btn-primary">Create Schedule</a>

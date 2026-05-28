@@ -4,17 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About — MyLife</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <script>if(localStorage.getItem('mylife-theme')==='dark'){document.documentElement.setAttribute('data-theme','dark');}</script>
+
+    <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('theme', {
+            dark: localStorage.getItem('mylife-theme') === 'dark',
+            toggle() {
+                this.dark = !this.dark;
+                localStorage.setItem('mylife-theme', this.dark ? 'dark' : 'light');
+                if (this.dark) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                }
+            }
+        });
+    });
+    </script>
+
+    <script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
     <link rel="stylesheet" href="/static/css/styles.css">
     <link rel="stylesheet" href="/static/css/home/MyLife_about.css">
-    <script>if(localStorage.getItem('mylife-theme')==='dark'){document.documentElement.setAttribute('data-theme','dark');}</script>
 </head>
-<body>
+<body x-data>
 
 <nav class="home-nav">
     <div class="nav-brand">
         <a href="/" class="nav-brand-link">
-            <div class="nav-brand-mark">🌿</div>
+            <div class="nav-brand-mark">
+                <i data-lucide="sprout" style="width:17px;height:17px;color:#fff;"></i>
+            </div>
             <span class="nav-brand-name">MyLife</span>
         </a>
     </div>
@@ -27,10 +50,19 @@
             <a href="/auth/login" class="btn-nav-secondary">Log In</a>
             <a href="/auth/signup" class="btn-nav-primary">Sign Up</a>
         {% endif %}
+        <div class="theme-row">
+            <span class="theme-nav-label">Dark Mode</span>
+            <button class="theme-toggle"
+                    :class="{ active: $store.theme.dark }"
+                    @click="$store.theme.toggle()"
+                    aria-label="Toggle dark mode">
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </button>
+        </div>
     </div>
 </nav>
 
-<section class="about-hero">
+<section class="about-hero animate-in">
     <h1>About <span class="hero-accent">MyLife</span></h1>
     <p class="about-lead">
         MyLife started as a simple idea: what if one app could replace the five you use to manage your day?
@@ -38,7 +70,7 @@
 </section>
 
 <section class="about-story">
-    <div class="story-block">
+    <div class="story-block animate-in">
         <h2>The problem we set out to solve</h2>
         <p>
             Most people manage their lives across a dozen disconnected tools — a to-do app here,
@@ -53,18 +85,18 @@
     </div>
 
     <div class="about-values">
-        <div class="value-card">
-            <div class="value-icon">🎯</div>
+        <div class="value-card animate-in" style="animation-delay:0.05s;">
+            <div class="value-icon"><i data-lucide="target"></i></div>
             <h3>Intentional</h3>
             <p>Every feature is built for clarity. No noise, no bloat — just what you need to move forward.</p>
         </div>
-        <div class="value-card">
-            <div class="value-icon">🔒</div>
+        <div class="value-card animate-in" style="animation-delay:0.1s;">
+            <div class="value-icon"><i data-lucide="shield"></i></div>
             <h3>Private</h3>
             <p>Your data stays yours. No ads, no selling your information, no third-party trackers.</p>
         </div>
-        <div class="value-card">
-            <div class="value-icon">⚡</div>
+        <div class="value-card animate-in" style="animation-delay:0.15s;">
+            <div class="value-icon"><i data-lucide="zap"></i></div>
             <h3>Fast</h3>
             <p>Built on a lightweight stack. No bloated frameworks — just a fast, snappy experience.</p>
         </div>
@@ -78,13 +110,15 @@
     {% else %}
     <h2>Ready to get started?</h2>
     <a href="/auth/signup" class="btn-hero-primary">Create Free Account</a>
-    <a href="/auth/login" class="btn-hero-ghost" style="margin-left:12px">Sign In</a>
+    <a href="/auth/login" class="btn-hero-ghost" style="margin-left:12px;">Sign In</a>
     {% endif %}
 </section>
 
 <footer class="home-footer">
     <div class="footer-brand">
-        <span>🌿</span>
+        <div class="nav-brand-mark" style="width:28px;height:28px;border-radius:7px;">
+            <i data-lucide="sprout" style="width:14px;height:14px;color:#fff;"></i>
+        </div>
         <span>MyLife</span>
     </div>
     <div class="footer-links">
@@ -95,5 +129,6 @@
     <p class="footer-copy">© 2025 MyLife. Built with intention.</p>
 </footer>
 
+<script>lucide.createIcons();</script>
 </body>
 </html>

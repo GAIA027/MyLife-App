@@ -35,7 +35,7 @@
 <div class="grid-2" style="margin-top:28px">
     <div class="card">
         <div class="card-header">
-            <span class="card-title">💚 Top Income Categories</span>
+            <span class="card-title"><i data-lucide="trending-up"></i> Top Income Categories</span>
         </div>
         {% if summary.income_by_category %}
         <table class="data-table">
@@ -50,13 +50,13 @@
             </tbody>
         </table>
         {% else %}
-        <div class="empty-state"><div class="empty-icon">💚</div><p>No income data.</p></div>
+        <div class="empty-state"><div class="empty-icon"><i data-lucide="trending-up"></i></div><p>No income data.</p></div>
         {% endif %}
     </div>
 
     <div class="card">
         <div class="card-header">
-            <span class="card-title">🔴 Top Expense Categories</span>
+            <span class="card-title"><i data-lucide="trending-down"></i> Top Expense Categories</span>
         </div>
         {% if summary.expense_by_category %}
         <table class="data-table">
@@ -71,7 +71,7 @@
             </tbody>
         </table>
         {% else %}
-        <div class="empty-state"><div class="empty-icon">🔴</div><p>No expense data.</p></div>
+        <div class="empty-state"><div class="empty-icon"><i data-lucide="trending-down"></i></div><p>No expense data.</p></div>
         {% endif %}
     </div>
 </div>

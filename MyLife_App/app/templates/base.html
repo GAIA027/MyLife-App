@@ -4,92 +4,155 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MyLife{% endblock %}</title>
+
+    <!-- No-flash theme: apply before any paint -->
+    <script>if(localStorage.getItem('mylife-theme')==='dark'){document.documentElement.setAttribute('data-theme','dark');}</script>
+
+    <!-- Alpine.js store — must be registered before Alpine initialises -->
+    <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('theme', {
+            dark: localStorage.getItem('mylife-theme') === 'dark',
+            toggle() {
+                this.dark = !this.dark;
+                localStorage.setItem('mylife-theme', this.dark ? 'dark' : 'light');
+                if (this.dark) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                }
+            }
+        });
+    });
+    </script>
+
+    <!-- HTMX 2 -->
+    <script src="https://unpkg.com/htmx.org@2.0.3"
+            integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq"
+            crossorigin="anonymous"></script>
+
+    <!-- Alpine.js 3 (defer so store init script above runs first) -->
+    <script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+    <!-- Lucide icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
     <link rel="stylesheet" href="/static/css/styles.css">
     {% block page_css %}{% endblock %}
-   
-    <script>if(localStorage.getItem('mylife-theme')==='dark'){document.documentElement.setAttribute('data-theme','dark');}</script>
 </head>
-<body>
+
+<body hx-boost="true" x-data>
 
 <div class="app-shell">
 
-
+    <!-- ── SIDEBAR ── -->
     <aside class="sidebar">
+
         <div class="sidebar-brand">
-            <div class="brand-mark">🌿</div>
+            <div class="brand-mark">
+                <i data-lucide="sprout" style="width:18px;height:18px;color:#fff;"></i>
+            </div>
             <span class="brand-name">MyLife</span>
         </div>
 
         <nav class="sidebar-nav">
             <span class="nav-section-label">Overview</span>
-            <a href="/"
-               class="nav-link {% if request.url.path == '/' %}active{% endif %}">
-                <span class="nav-icon">🌐</span> Home
+
+            <a href="/" class="nav-link {% if request.url.path == '/' %}active{% endif %}">
+                <span class="nav-icon"><i data-lucide="globe"></i></span> Home
             </a>
             <a href="/dashboard"
                class="nav-link {% if request.url.path == '/dashboard' or request.url.path == '/dashboard/' %}active{% endif %}">
-                <span class="nav-icon">🏠</span> Dashboard
+                <span class="nav-icon"><i data-lucide="home"></i></span> Dashboard
             </a>
 
             <span class="nav-section-label">Modules</span>
+
             <a href="/tracker/dashboard"
                class="nav-link {% if '/tracker' in request.url.path %}active{% endif %}">
-                <span class="nav-icon">✅</span> Tracker
+                <span class="nav-icon"><i data-lucide="check-square"></i></span> Tracker
             </a>
             <a href="/finance/dashboard"
                class="nav-link {% if '/finance' in request.url.path %}active{% endif %}">
-                <span class="nav-icon">💰</span> Finance
+                <span class="nav-icon"><i data-lucide="wallet"></i></span> Finance
             </a>
             <a href="/fitness/dashboard"
                class="nav-link {% if '/fitness' in request.url.path %}active{% endif %}">
-                <span class="nav-icon">🏃</span> Fitness
+                <span class="nav-icon"><i data-lucide="dumbbell"></i></span> Fitness
             </a>
             <a href="/calendar/dashboard"
                class="nav-link {% if '/calendar' in request.url.path %}active{% endif %}">
-                <span class="nav-icon">📅</span> Calendar
+                <span class="nav-icon"><i data-lucide="calendar"></i></span> Calendar
             </a>
             <a href="/statistics/dashboard"
                class="nav-link {% if '/statistics' in request.url.path %}active{% endif %}">
-                <span class="nav-icon">📊</span> Statistics
+                <span class="nav-icon"><i data-lucide="bar-chart-2"></i></span> Statistics
             </a>
             <a href="/scheduler/dashboard"
                class="nav-link {% if '/scheduler' in request.url.path %}active{% endif %}">
-                <span class="nav-icon">🗓</span> Scheduler
+                <span class="nav-icon"><i data-lucide="clock"></i></span> Scheduler
             </a>
         </nav>
 
         <div class="sidebar-footer">
+            <!-- Dark mode toggle -->
+            <div class="theme-toggle-row" style="padding: 6px 12px 10px; margin-bottom: 4px;">
+                <span style="font-size:13px;font-weight:500;color:var(--text2);">Dark Mode</span>
+                <button class="toggle-btn"
+                        :class="{ active: $store.theme.dark }"
+                        @click="$store.theme.toggle()"
+                        aria-label="Toggle dark mode">
+                    <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                </button>
+            </div>
+
             <a href="/settings"
                class="nav-link {% if '/settings' in request.url.path %}active{% endif %}">
-                <span class="nav-icon">⚙️</span> Settings
+                <span class="nav-icon"><i data-lucide="settings"></i></span> Settings
             </a>
             <a href="/auth/logout" class="nav-link">
-                <span class="nav-icon">🚪</span> Log out
+                <span class="nav-icon"><i data-lucide="log-out"></i></span> Log out
             </a>
         </div>
+
     </aside>
 
-  
+    <!-- ── MAIN AREA ── -->
     <div class="main-area">
 
-     
         <header class="topbar">
             <div class="topbar-left">
                 <span class="page-breadcrumb">
-                    MyLife &rsaquo; <span>{% block breadcrumb %}Home{% endblock %}</span>
+                    MyLife
+                    <i data-lucide="chevron-right" style="width:12px;height:12px;display:inline-block;vertical-align:middle;opacity:0.4;margin:0 2px;"></i>
+                    <span>{% block breadcrumb %}Home{% endblock %}</span>
                 </span>
             </div>
+
             <div class="topbar-right">
                 {% if current_user %}
-                <div class="user-menu-wrap">
-                    <button class="user-chip" id="userMenuBtn" aria-expanded="false" aria-haspopup="true">
+                <div class="user-menu-wrap"
+                     x-data="{ open: false }"
+                     @click.outside="open = false">
+
+                    <button class="user-chip"
+                            @click="open = !open"
+                            :aria-expanded="open.toString()">
                         <div class="user-avatar">
                             {{ current_user.first_name[0] | upper }}{{ current_user.last_name[0] | upper }}
                         </div>
                         <span class="user-name">{{ current_user.first_name }}</span>
-                        <span class="user-chip-caret">▾</span>
+                        <span class="user-chip-caret">
+                            <i data-lucide="chevron-down"
+                               :style="open ? 'transform:rotate(180deg)' : ''"
+                               style="width:13px;height:13px;transition:transform 0.2s;display:block;"></i>
+                        </span>
                     </button>
-                    <div class="user-dropdown" id="userDropdown" hidden>
+
+                    <div class="user-dropdown"
+                         x-show="open"
+                         x-transition
+                         style="display:none;">
                         <div class="user-dropdown-header">
                             <div class="user-avatar user-avatar--lg">
                                 {{ current_user.first_name[0] | upper }}{{ current_user.last_name[0] | upper }}
@@ -101,54 +164,34 @@
                         </div>
                         <div class="user-dropdown-divider"></div>
                         <a href="/settings" class="user-dropdown-item">
-                            <span class="user-dropdown-icon">⚙️</span> Settings
+                            <i data-lucide="settings" class="user-dropdown-icon"></i> Settings
                         </a>
                         <div class="user-dropdown-divider"></div>
                         <a href="/auth/logout" class="user-dropdown-item user-dropdown-item--danger">
-                            <span class="user-dropdown-icon">🚪</span> Log out
+                            <i data-lucide="log-out" class="user-dropdown-icon"></i> Log out
                         </a>
                     </div>
+
                 </div>
                 {% endif %}
             </div>
         </header>
 
-        
         <main class="page-content">
             {% block content %}{% endblock %}
         </main>
 
     </div>
+
 </div>
 
+<!-- Lucide: create icons + re-create after every HTMX swap -->
 <script>
-(function () {
-    const btn = document.getElementById('userMenuBtn');
-    const dropdown = document.getElementById('userDropdown');
-    if (!btn || !dropdown) return;
-
-    btn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        const open = !dropdown.hidden;
-        dropdown.hidden = open;
-        btn.setAttribute('aria-expanded', String(!open));
-    });
-
-    document.addEventListener('click', function (e) {
-        if (!dropdown.hidden && !btn.contains(e.target) && !dropdown.contains(e.target)) {
-            dropdown.hidden = true;
-            btn.setAttribute('aria-expanded', 'false');
-        }
-    });
-
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && !dropdown.hidden) {
-            dropdown.hidden = true;
-            btn.setAttribute('aria-expanded', 'false');
-            btn.focus();
-        }
-    });
-}());
+    lucide.createIcons();
+    document.addEventListener('htmx:afterSettle', () => lucide.createIcons());
 </script>
+
+{% block page_js %}{% endblock %}
+
 </body>
 </html>

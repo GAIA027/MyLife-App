@@ -45,7 +45,7 @@
     <!-- Accounts — names only -->
     <div class="card">
         <div class="card-header">
-            <span class="card-title">🏦 Accounts</span>
+            <span class="card-title"><i data-lucide="landmark"></i> Accounts</span>
             <a href="/finance/accounts/list" class="btn-ghost btn-sm">Manage</a>
         </div>
         {% if accounts %}
@@ -68,7 +68,7 @@
         </div>
         {% else %}
         <div class="empty-state">
-            <div class="empty-icon">🏦</div>
+            <div class="empty-icon"><i data-lucide="landmark"></i></div>
             <p>No accounts yet.</p>
             <a href="/finance/accounts" class="btn-primary btn-sm">Create Account</a>
         </div>
@@ -78,7 +78,7 @@
     <!-- Summary card -->
     <div class="card">
         <div class="card-header">
-            <span class="card-title">📊 Summary</span>
+            <span class="card-title"><i data-lucide="bar-chart-2"></i> Summary</span>
             <a href="/finance/summary" class="btn-ghost btn-sm">Full Report</a>
         </div>
         <div class="summary-net-row">
@@ -123,7 +123,7 @@
     <!-- Recent Transactions -->
     <div class="card">
         <div class="card-header">
-            <span class="card-title">🧾 Recent Transactions</span>
+            <span class="card-title"><i data-lucide="receipt"></i> Recent Transactions</span>
             <a href="/finance/transactions/list" class="btn-ghost btn-sm">View All</a>
         </div>
         {% if recent_transactions %}
@@ -145,7 +145,7 @@
         </div>
         {% else %}
         <div class="empty-state">
-            <div class="empty-icon">🧾</div>
+            <div class="empty-icon"><i data-lucide="receipt"></i></div>
             <p>No transactions yet.</p>
             <a href="/finance/transactions" class="btn-primary btn-sm">Add Transaction</a>
         </div>
@@ -155,7 +155,7 @@
     <!-- Budgets -->
     <div class="card">
         <div class="card-header">
-            <span class="card-title">💰 Budgets</span>
+            <span class="card-title"><i data-lucide="piggy-bank"></i> Budgets</span>
             <a href="/finance/budgets/list" class="btn-ghost btn-sm">View All</a>
         </div>
         {% if budgets %}
@@ -175,7 +175,7 @@
         </div>
         {% else %}
         <div class="empty-state">
-            <div class="empty-icon">💰</div>
+            <div class="empty-icon"><i data-lucide="piggy-bank"></i></div>
             <p>No budgets set up yet.</p>
             <a href="/finance/budgets/new" class="btn-primary btn-sm">Create Budget</a>
         </div>
@@ -185,10 +185,10 @@
 </div>
 
 <div class="finance-shortcuts" style="margin-top:20px;">
-    <a href="/finance/transactions/income" class="btn-ghost btn-sm">💚 Income</a>
-    <a href="/finance/transactions/expense" class="btn-ghost btn-sm">🔴 Expenses</a>
-    <a href="/finance/categories/list" class="btn-ghost btn-sm">🏷 Categories</a>
-    <a href="/finance/budgets/list" class="btn-ghost btn-sm">💰 Budgets</a>
-    <a href="/finance/summary" class="btn-ghost btn-sm">📊 Summary</a>
+    <a href="/finance/transactions/income" class="btn-ghost btn-sm"><i data-lucide="trending-up" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;color:var(--success);"></i>Income</a>
+    <a href="/finance/transactions/expense" class="btn-ghost btn-sm"><i data-lucide="trending-down" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;color:var(--danger);"></i>Expenses</a>
+    <a href="/finance/categories/list" class="btn-ghost btn-sm"><i data-lucide="tag" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;"></i>Categories</a>
+    <a href="/finance/budgets/list" class="btn-ghost btn-sm"><i data-lucide="piggy-bank" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;"></i>Budgets</a>
+    <a href="/finance/summary" class="btn-ghost btn-sm"><i data-lucide="bar-chart-2" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;"></i>Summary</a>
 </div>
 {% endblock %}

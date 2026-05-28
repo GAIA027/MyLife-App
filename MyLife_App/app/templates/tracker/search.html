@@ -28,7 +28,7 @@
     <!-- Tasks -->
     <div class="card" style="margin-bottom:20px">
         <div class="card-header">
-            <span class="card-title">✅ Tasks</span>
+            <span class="card-title"><i data-lucide="check-square"></i> Tasks</span>
             <span class="text-muted" style="font-size:13px">{{ tasks | length }} result{{ 's' if tasks | length != 1 else '' }}</span>
         </div>
         {% if tasks %}
@@ -53,7 +53,7 @@
     <!-- Habits -->
     <div class="card" style="margin-bottom:20px">
         <div class="card-header">
-            <span class="card-title">🔁 Habits</span>
+            <span class="card-title"><i data-lucide="repeat"></i> Habits</span>
             <span class="text-muted" style="font-size:13px">{{ habits | length }} result{{ 's' if habits | length != 1 else '' }}</span>
         </div>
         {% if habits %}
@@ -77,7 +77,7 @@
     <!-- Projects -->
     <div class="card">
         <div class="card-header">
-            <span class="card-title">📁 Projects</span>
+            <span class="card-title"><i data-lucide="folder"></i> Projects</span>
             <span class="text-muted" style="font-size:13px">{{ projects | length }} result{{ 's' if projects | length != 1 else '' }}</span>
         </div>
         {% if projects %}
@@ -101,7 +101,7 @@
 </div>
 {% else %}
 <div class="empty-state">
-    <div class="empty-icon">🔍</div>
+    <div class="empty-icon"><i data-lucide="search"></i></div>
     <h2>Start searching</h2>
     <p>Type a keyword above to find tasks, habits, and projects.</p>
 </div>

@@ -4,17 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Features — MyLife</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <script>if(localStorage.getItem('mylife-theme')==='dark'){document.documentElement.setAttribute('data-theme','dark');}</script>
+
+    <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('theme', {
+            dark: localStorage.getItem('mylife-theme') === 'dark',
+            toggle() {
+                this.dark = !this.dark;
+                localStorage.setItem('mylife-theme', this.dark ? 'dark' : 'light');
+                if (this.dark) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                }
+            }
+        });
+    });
+    </script>
+
+    <script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
     <link rel="stylesheet" href="/static/css/styles.css">
     <link rel="stylesheet" href="/static/css/home/Mylife_sevices.css">
-    <script>if(localStorage.getItem('mylife-theme')==='dark'){document.documentElement.setAttribute('data-theme','dark');}</script>
 </head>
-<body>
+<body x-data>
 
 <nav class="home-nav">
     <div class="nav-brand">
         <a href="/" class="nav-brand-link">
-            <div class="nav-brand-mark">🌿</div>
+            <div class="nav-brand-mark">
+                <i data-lucide="sprout" style="width:17px;height:17px;color:#fff;"></i>
+            </div>
             <span class="nav-brand-name">MyLife</span>
         </a>
     </div>
@@ -29,22 +52,25 @@
         {% endif %}
         <div class="theme-row">
             <span class="theme-nav-label">Dark Mode</span>
-            <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+            <button class="theme-toggle"
+                    :class="{ active: $store.theme.dark }"
+                    @click="$store.theme.toggle()"
+                    aria-label="Toggle dark mode">
                 <span class="toggle-track"><span class="toggle-thumb"></span></span>
             </button>
         </div>
     </div>
 </nav>
 
-<section class="services-hero">
+<section class="services-hero animate-in">
     <h1>Everything you need,<br><span class="hero-accent">nothing you don't</span></h1>
     <p>Seven powerful modules. One clean interface.</p>
 </section>
 
 <section class="services-list">
 
-    <div class="service-block">
-        <div class="service-icon-wrap">✅</div>
+    <div class="service-block animate-in" style="animation-delay:0.05s;">
+        <div class="service-icon-wrap"><i data-lucide="check-square"></i></div>
         <div class="service-body">
             <h2>Task Tracker</h2>
             <p>Create tasks, habits, and projects. Set deadlines, priorities, and recurring schedules. Track your streaks and archive what's done.</p>
@@ -57,8 +83,8 @@
         </div>
     </div>
 
-    <div class="service-block reverse">
-        <div class="service-icon-wrap">💰</div>
+    <div class="service-block reverse animate-in" style="animation-delay:0.08s;">
+        <div class="service-icon-wrap"><i data-lucide="wallet"></i></div>
         <div class="service-body">
             <h2>Finance</h2>
             <p>Know exactly where your money goes. Track income and expenses, manage multiple accounts, and set budgets with real spending limits.</p>
@@ -71,8 +97,8 @@
         </div>
     </div>
 
-    <div class="service-block">
-        <div class="service-icon-wrap">🏃</div>
+    <div class="service-block animate-in" style="animation-delay:0.11s;">
+        <div class="service-icon-wrap"><i data-lucide="dumbbell"></i></div>
         <div class="service-body">
             <h2>Fitness</h2>
             <p>Log every workout, build structured meal plans, set a calorie goal, and track your routines week by week.</p>
@@ -85,8 +111,8 @@
         </div>
     </div>
 
-    <div class="service-block reverse">
-        <div class="service-icon-wrap">📅</div>
+    <div class="service-block reverse animate-in" style="animation-delay:0.14s;">
+        <div class="service-icon-wrap"><i data-lucide="calendar"></i></div>
         <div class="service-body">
             <h2>Calendar</h2>
             <p>See your schedule at a glance. Log events, view by day or month, and connect them to everything else in your life.</p>
@@ -98,8 +124,8 @@
         </div>
     </div>
 
-    <div class="service-block">
-        <div class="service-icon-wrap">📊</div>
+    <div class="service-block animate-in" style="animation-delay:0.17s;">
+        <div class="service-icon-wrap"><i data-lucide="bar-chart-2"></i></div>
         <div class="service-body">
             <h2>Statistics</h2>
             <p>Understand your patterns. MyLife surfaces summaries across every module so you always know how you're doing.</p>
@@ -111,8 +137,8 @@
         </div>
     </div>
 
-    <div class="service-block reverse">
-        <div class="service-icon-wrap">🗓</div>
+    <div class="service-block reverse animate-in" style="animation-delay:0.2s;">
+        <div class="service-icon-wrap"><i data-lucide="clock"></i></div>
         <div class="service-body">
             <h2>Scheduler</h2>
             <p>Create multiple named schedules and fill each one with timed activities. Whether it's a study plan, a work week, or a gym routine — build it, name it, and follow it.</p>
@@ -125,8 +151,8 @@
         </div>
     </div>
 
-    <div class="service-block">
-        <div class="service-icon-wrap">⚙️</div>
+    <div class="service-block animate-in" style="animation-delay:0.23s;">
+        <div class="service-icon-wrap"><i data-lucide="settings"></i></div>
         <div class="service-body">
             <h2>Settings</h2>
             <p>MyLife works the way you want it to. Change your password, switch to dark mode, and personalise your experience.</p>
@@ -146,37 +172,15 @@
     {% else %}
     <h2>Start using all of this — free.</h2>
     <a href="/auth/signup" class="btn-hero-primary">Create Free Account</a>
-    <a href="/auth/login" class="btn-hero-ghost" style="margin-left:12px">Sign In</a>
+    <a href="/auth/login" class="btn-hero-ghost" style="margin-left:12px;">Sign In</a>
     {% endif %}
 </section>
 
-<script>
-(function () {
-    const toggle = document.getElementById('themeToggle');
-
-    function applyTheme(theme) {
-        if (theme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-        } else {
-            document.documentElement.removeAttribute('data-theme');
-        }
-        localStorage.setItem('mylife-theme', theme);
-        toggle.classList.toggle('active', theme === 'dark');
-    }
-
-    const saved = localStorage.getItem('mylife-theme') || 'light';
-    applyTheme(saved);
-
-    toggle.addEventListener('click', function () {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        applyTheme(isDark ? 'light' : 'dark');
-    });
-}());
-</script>
-
 <footer class="home-footer">
     <div class="footer-brand">
-        <span>🌿</span>
+        <div class="nav-brand-mark" style="width:28px;height:28px;border-radius:7px;">
+            <i data-lucide="sprout" style="width:14px;height:14px;color:#fff;"></i>
+        </div>
         <span>MyLife</span>
     </div>
     <div class="footer-links">
@@ -187,5 +191,6 @@
     <p class="footer-copy">© 2025 MyLife. Built with intention.</p>
 </footer>
 
+<script>lucide.createIcons();</script>
 </body>
 </html>
