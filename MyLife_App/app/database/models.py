@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Float, Integer, String, Text, ForeignKey, JSON, TIMESTAMP
+from sqlalchemy import Boolean, Column, Float, Index, Integer, String, Text, ForeignKey, JSON, TIMESTAMP
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
@@ -112,6 +112,8 @@ class FinanceAccount(Base):
     created_at = Column(String, default="")
     updated_at = Column(String, default="")
 
+    __table_args__ = (Index("ix_finance_accounts_user_id", "user_id"),)
+
     user = relationship("User", back_populates="finance_accounts")
     transactions = relationship("Transaction", back_populates="account", cascade="all, delete-orphan")
 
@@ -124,6 +126,8 @@ class FinanceCategory(Base):
     name = Column(String, nullable=False)
     type = Column(String, nullable=False)
     created_at = Column(String, default="")
+
+    __table_args__ = (Index("ix_finance_categories_user_id", "user_id"),)
 
     user = relationship("User", back_populates="finance_categories")
     transactions = relationship("Transaction", back_populates="category")
@@ -142,22 +146,31 @@ class Transaction(Base):
     txn_date = Column(String, default="")
     description = Column(Text, default="")
 
+    __table_args__ = (
+        Index("ix_transactions_user_id", "user_id"),
+        Index("ix_transactions_account_id", "account_id"),
+        Index("ix_transactions_budget_id", "budget_id"),
+    )
+
     user = relationship("User", back_populates="transactions")
     account = relationship("FinanceAccount", back_populates="transactions")
     category = relationship("FinanceCategory", back_populates="transactions")
 
+
 class Budget(Base):
     __tablename__ = "budgets"
-    
+
     id = Column(String, primary_key=True)
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
     category_id = Column(String, ForeignKey("finance_categories.id"), nullable=True)
     name = Column(String, nullable=False)
     amount = Column(Integer, nullable=False)
-    period = Column(String,  default="monthly")
+    period = Column(String, default="monthly")
     start_date = Column(String, default="")
-    created_at = Column (String, default="")
+    created_at = Column(String, default="")
     updated_at = Column(String, default="")
+
+    __table_args__ = (Index("ix_budgets_user_id", "user_id"),)
 
     user = relationship("User", back_populates="budgets")
 class Meal(Base):

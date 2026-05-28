@@ -1,4 +1,5 @@
 # Finance tracker for MyLife app
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.database.models import (
@@ -405,14 +406,38 @@ class TransactionService:
         current_user=ensure_current_user(current_user)
         if not current_user:
             return []
-        
+
         record = self.db.query(TransactionModel).filter(
             TransactionModel.user_id == str(current_user.get("id")),
             TransactionModel.id == budget_id
         )
-        
+
         return [_transaction_to_dict(t) for t in record]
-    
+
+    def get_account_spending_summary(self, current_user):
+        current_user = ensure_current_user(current_user)
+        if not current_user:
+            return {}
+        uid = str(current_user.get("id"))
+        rows = (
+            self.db.query(
+                TransactionModel.account_id,
+                TransactionModel.txn_type,
+                func.sum(TransactionModel.amount).label("total"),
+            )
+            .filter(TransactionModel.user_id == uid)
+            .group_by(TransactionModel.account_id, TransactionModel.txn_type)
+            .all()
+        )
+        summary = {}
+        for account_id, txn_type, total in rows:
+            if account_id not in summary:
+                summary[account_id] = {"income": 0.0, "expenses": 0.0}
+            if txn_type == "income":
+                summary[account_id]["income"] = float(total)
+            else:
+                summary[account_id]["expenses"] = float(total)
+        return summary
 
 
 class FinanceSummaryService:
@@ -656,4 +681,24 @@ class BudgetService:
             return 0
         transactions = TransactionService(self.db).list_transactions_by_budget(current_user, budget_id)
         return sum(float(t["amount"]) for t in transactions if t["txn_type"] == "expense")
+
+    def get_all_budget_spending(self, current_user):
+        current_user = ensure_current_user(current_user)
+        if not current_user:
+            return {}
+        uid = str(current_user.get("id"))
+        rows = (
+            self.db.query(
+                TransactionModel.budget_id,
+                func.sum(TransactionModel.amount).label("total"),
+            )
+            .filter(
+                TransactionModel.user_id == uid,
+                TransactionModel.budget_id.isnot(None),
+                TransactionModel.txn_type == "expense",
+            )
+            .group_by(TransactionModel.budget_id)
+            .all()
+        )
+        return {budget_id: float(total) for budget_id, total in rows}
     

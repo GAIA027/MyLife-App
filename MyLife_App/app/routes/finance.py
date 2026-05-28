@@ -35,12 +35,16 @@ def finance_dashboard(
 
     account_currency_map = {acc["id"]: acc.get("currency", "USD") for acc in accounts}
 
+    spending_by_account = transaction_service.get_account_spending_summary(current_user)
     accounts_with_summary = []
     for acc in accounts:
-        acc_txns = transaction_service.list_transactions_by_account(current_user, acc["id"])
-        income = sum(float(t["amount"]) for t in acc_txns if t.get("txn_type") == "income")
-        expenses = sum(float(t["amount"]) for t in acc_txns if t.get("txn_type") == "expense")
-        accounts_with_summary.append({**acc, "income": income, "expenses": expenses, "net": income - expenses})
+        s = spending_by_account.get(acc["id"], {"income": 0.0, "expenses": 0.0})
+        accounts_with_summary.append({
+            **acc,
+            "income": s["income"],
+            "expenses": s["expenses"],
+            "net": s["income"] - s["expenses"],
+        })
 
     recent_txns = []
     for t in sorted(transactions, key=lambda x: x.get("txn_date", ""), reverse=True)[:5]:
@@ -541,10 +545,12 @@ def budgets_list(
 ):
     svc = BudgetService(db)
     budgets = svc.list_budgets(current_user)
+    spending = svc.get_all_budget_spending(current_user)
     for b in budgets:
-        b["spent"] = svc.get_budget_spending(current_user, b["id"])
-        b["remaining"] = b["amount"] - b["spent"]
-        b["pct"] = min(100, int(b["spent"] / b["amount"] * 100)) if b["amount"] else 0
+        spent = spending.get(b["id"], 0.0)
+        b["spent"] = spent
+        b["remaining"] = b["amount"] - spent
+        b["pct"] = min(100, int(spent / b["amount"] * 100)) if b["amount"] else 0
     categories = CategoryService(db).list_categories(current_user)
     return templates.TemplateResponse(
         "finance/budgets_list.html",
