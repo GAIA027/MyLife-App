@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MyLife{% endblock %}</title>
 
-    <!-- No-flash theme: apply before any paint -->
     <script>if(localStorage.getItem('mylife-theme')==='dark'){document.documentElement.setAttribute('data-theme','dark');}</script>
 
-    <!-- Alpine.js store — must be registered before Alpine initialises -->
     <script>
     document.addEventListener('alpine:init', () => {
         Alpine.store('theme', {
@@ -26,15 +24,11 @@
     });
     </script>
 
-    <!-- HTMX 2 -->
     <script src="https://unpkg.com/htmx.org@2.0.3"
             integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq"
             crossorigin="anonymous"></script>
 
-    <!-- Alpine.js 3 (defer so store init script above runs first) -->
     <script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
-
-    <!-- Lucide icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 
     <link rel="stylesheet" href="/static/css/styles.css">
@@ -43,59 +37,75 @@
 
 <body hx-boost="true" x-data>
 
-<div class="app-shell">
+<div class="app-shell" x-data="{ sidebarOpen: false }">
+
+    <!-- Mobile overlay -->
+    <div class="sidebar-overlay"
+         x-show="sidebarOpen"
+         @click="sidebarOpen = false"
+         style="display:none;"></div>
 
     <!-- ── SIDEBAR ── -->
-    <aside class="sidebar">
+    <aside class="sidebar" :class="{ 'sidebar--open': sidebarOpen }">
 
         <div class="sidebar-brand">
             <div class="brand-mark">
                 <i data-lucide="sprout" style="width:18px;height:18px;color:#fff;"></i>
             </div>
             <span class="brand-name">MyLife</span>
+            <button class="sidebar-close-btn" @click="sidebarOpen = false" aria-label="Close menu">
+                <i data-lucide="x"></i>
+            </button>
         </div>
 
         <nav class="sidebar-nav">
             <span class="nav-section-label">Overview</span>
 
-            <a href="/" class="nav-link {% if request.url.path == '/' %}active{% endif %}">
+            <a href="/" class="nav-link {% if request.url.path == '/' %}active{% endif %}"
+               @click="sidebarOpen = false">
                 <span class="nav-icon"><i data-lucide="globe"></i></span> Home
             </a>
             <a href="/dashboard"
-               class="nav-link {% if request.url.path == '/dashboard' or request.url.path == '/dashboard/' %}active{% endif %}">
+               class="nav-link {% if request.url.path == '/dashboard' or request.url.path == '/dashboard/' %}active{% endif %}"
+               @click="sidebarOpen = false">
                 <span class="nav-icon"><i data-lucide="home"></i></span> Dashboard
             </a>
 
             <span class="nav-section-label">Modules</span>
 
             <a href="/tracker/dashboard"
-               class="nav-link {% if '/tracker' in request.url.path %}active{% endif %}">
+               class="nav-link {% if '/tracker' in request.url.path %}active{% endif %}"
+               @click="sidebarOpen = false">
                 <span class="nav-icon"><i data-lucide="check-square"></i></span> Tracker
             </a>
             <a href="/finance/dashboard"
-               class="nav-link {% if '/finance' in request.url.path %}active{% endif %}">
+               class="nav-link {% if '/finance' in request.url.path %}active{% endif %}"
+               @click="sidebarOpen = false">
                 <span class="nav-icon"><i data-lucide="wallet"></i></span> Finance
             </a>
             <a href="/fitness/dashboard"
-               class="nav-link {% if '/fitness' in request.url.path %}active{% endif %}">
+               class="nav-link {% if '/fitness' in request.url.path %}active{% endif %}"
+               @click="sidebarOpen = false">
                 <span class="nav-icon"><i data-lucide="dumbbell"></i></span> Fitness
             </a>
             <a href="/calendar/dashboard"
-               class="nav-link {% if '/calendar' in request.url.path %}active{% endif %}">
+               class="nav-link {% if '/calendar' in request.url.path %}active{% endif %}"
+               @click="sidebarOpen = false">
                 <span class="nav-icon"><i data-lucide="calendar"></i></span> Calendar
             </a>
             <a href="/statistics/dashboard"
-               class="nav-link {% if '/statistics' in request.url.path %}active{% endif %}">
+               class="nav-link {% if '/statistics' in request.url.path %}active{% endif %}"
+               @click="sidebarOpen = false">
                 <span class="nav-icon"><i data-lucide="bar-chart-2"></i></span> Statistics
             </a>
             <a href="/scheduler/dashboard"
-               class="nav-link {% if '/scheduler' in request.url.path %}active{% endif %}">
+               class="nav-link {% if '/scheduler' in request.url.path %}active{% endif %}"
+               @click="sidebarOpen = false">
                 <span class="nav-icon"><i data-lucide="clock"></i></span> Scheduler
             </a>
         </nav>
 
         <div class="sidebar-footer">
-            <!-- Dark mode toggle -->
             <div class="theme-toggle-row" style="padding: 6px 12px 10px; margin-bottom: 4px;">
                 <span style="font-size:13px;font-weight:500;color:var(--text2);">Dark Mode</span>
                 <button class="toggle-btn"
@@ -107,7 +117,8 @@
             </div>
 
             <a href="/settings"
-               class="nav-link {% if '/settings' in request.url.path %}active{% endif %}">
+               class="nav-link {% if '/settings' in request.url.path %}active{% endif %}"
+               @click="sidebarOpen = false">
                 <span class="nav-icon"><i data-lucide="settings"></i></span> Settings
             </a>
             <a href="/auth/logout" class="nav-link">
@@ -122,6 +133,9 @@
 
         <header class="topbar">
             <div class="topbar-left">
+                <button class="hamburger-btn" @click="sidebarOpen = !sidebarOpen" aria-label="Open menu">
+                    <i data-lucide="menu"></i>
+                </button>
                 <span class="page-breadcrumb">
                     MyLife
                     <i data-lucide="chevron-right" style="width:12px;height:12px;display:inline-block;vertical-align:middle;opacity:0.4;margin:0 2px;"></i>
@@ -185,7 +199,6 @@
 
 </div>
 
-<!-- Lucide: create icons + re-create after every HTMX swap -->
 <script>
     lucide.createIcons();
     document.addEventListener('htmx:afterSettle', () => lucide.createIcons());
